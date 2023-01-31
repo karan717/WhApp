@@ -4,6 +4,7 @@ import Avatar from '../../ui/Avatar'
 import { useNavigation } from '@react-navigation/native'
 import { useProfile } from '../profile/useProfile'
 import Loader from '../../ui/Loader'
+import Entypo from 'react-native-vector-icons/Entypo'
 
 const Header:FC = () => {
   const {isLoading, name} = useProfile()
@@ -17,7 +18,11 @@ const Header:FC = () => {
       className='flex-row items-end'
       >
         <Text className='text-2xl text-gray-800 font-bold'>{name}</Text>
-
+        <Entypo
+        name = 'chevron-small-right'
+        size={28}
+        className = 'text-gray-800'
+        />
       </TouchableOpacity>
     </View>
   )
@@ -25,3 +30,5 @@ const Header:FC = () => {
 
 
 export default Header
+
+//This is header of the Home Page
