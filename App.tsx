@@ -8,7 +8,10 @@ import DraftPage from './app/DraftPage';
 import Navigation from './app/navigation/Navigation';
 
 import { AuthProvider } from './app/providers/AuthProvider';
+import EStyleSheet from 'react-native-extended-stylesheet';
 
+//To build the EStyleSheet
+EStyleSheet.build();
 
 
 function App(): JSX.Element {

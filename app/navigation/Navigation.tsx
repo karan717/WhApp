@@ -7,8 +7,8 @@ import Auth from '../components/screens/auth/Auth'
 import More from '../components/screens/more/More'
 import Home from '../components/screens/home/Home'
 import Profile from '../components/screens/profile/Profile'
-import Payments from '../components/screens/payments/Payments'
-import Services from '../components/screens/services/Services'
+import Route from '../components/screens/route/Route'
+import Charging from '../components/screens/charging/Charging'
 import Support from '../components/screens/support/Support'
 import Footer from '../components/layout/footer/Footer'
 
@@ -43,8 +43,8 @@ const Navigation:FC = () => {
             <>
                 <Stack.Screen name="Home" component={Home} />
                 <Stack.Screen name="Profile" component={Profile} />
-                <Stack.Screen name='Payments' component={Payments} />
-                <Stack.Screen name='Services' component={Services} />
+                <Stack.Screen name='Charging' component={Charging} />
+                <Stack.Screen name='Route' component={Route} />
                 <Stack.Screen name='Support' component={Support} />
                 <Stack.Screen name='More' component={More} />
             </>) : (<Stack.Screen name='Auth' component={Auth} />)}

@@ -4,7 +4,7 @@ import React, { FC } from 'react'
 const More:FC = () => {
   return (
     <View>
-      <Text>More</Text>
+      <Text className='text-2xl text-center pt-40'>More</Text>
     </View>
   )
 }

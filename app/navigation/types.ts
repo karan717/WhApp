@@ -2,8 +2,8 @@ export type TypeRootStackParamList = {
     Auth: undefined
     Home: undefined
     Profile: undefined
-    Services: undefined
+    Route: undefined
     Support: undefined
-    Payments: undefined
+    Charging: undefined
     More: undefined
 }

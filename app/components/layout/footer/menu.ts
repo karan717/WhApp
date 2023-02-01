@@ -7,12 +7,12 @@ export const menu:IFooterItem[] =[
 
     },
     {
-        iconName:"switcher",
-        title:'Services',
+        iconName:"enviromento",
+        title:'Route',
     },
     {
-        iconName:"message1",
-        title:'Support',
+        iconName:"battery",
+        title:'Charging',
     },
     {
         iconName:"ellipsis1",

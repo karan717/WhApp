@@ -8,7 +8,7 @@ const Home:FC = () => {
   return (
     <Layout>
       <Header/>
-      <Text>Home</Text>
+      <Text className='text-2xl text-center pt-40'>Home</Text>
     </Layout>
   )
 }

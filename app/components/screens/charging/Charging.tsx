@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React, { FC } from 'react'
 
-const Services:FC = () => {
+const Charging:FC = () => {
   return (
     <View>
-      <Text>Services</Text>
+      <Text className='text-2xl text-center pt-40'>Charging</Text>
     </View>
   )
 }
 
-export default Services
+export default Charging
