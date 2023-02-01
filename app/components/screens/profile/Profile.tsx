@@ -52,25 +52,27 @@ const Profile:FC = () => {
           <Field onChange={setName} val={name} 
           placeholder='Enter name' />
 
-        <FieldTitle name="Surname"/>
+        <FieldTitle name="Family Name"/>
           <Field onChange={setSurname} val={surname} 
-          placeholder='Enter surname' />
+          placeholder='Enter family name' />
+
+        <FieldTitle name="Battery Voltage (Max.) *"/>
+          <Field onChange={setRVoltage} val={rVoltage} 
+          placeholder='Enter battery voltage' />
+
+        <FieldTitle name="Battery Current (Max.) *"/>
+          <Field onChange={setRCurrent} val={rCurrent} 
+          placeholder='Enter battery current' />
 
         <FieldTitle name="Wheelchair Model"/>
           <Field onChange={setWhModel} val={whModel} 
           placeholder='Enter wheelchair model' />
 
-        <FieldTitle name="Weight, lbs"/>
+        <FieldTitle name="User Weight, lbs"/>
           <Field onChange={setManWeight} val={manWeight} 
           placeholder='Enter your weight' />
 
-        <FieldTitle name="Rated Voltage"/>
-          <Field onChange={setRVoltage} val={rVoltage} 
-          placeholder='Enter rated voltage' />
 
-        <FieldTitle name="Rated Current"/>
-          <Field onChange={setRCurrent} val={rCurrent} 
-          placeholder='Enter rated current' />
 
           <Button onPress={updateProfile} title='Update Profile'
           colors={['bg-yelllow-300','#FBBF24']}/>

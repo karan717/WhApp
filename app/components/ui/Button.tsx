@@ -11,8 +11,8 @@ const Button:FC<IButton> = ({onPress,title,colors=['bg-yelllow-300','#FBBF24']})
     <TouchableHighlight 
     onPress={onPress} 
     underlayColor={colors[1]}
-    className={`bg-yellow-300 ${colors[0]} text-gray-800 rounded-xl w-full my-4 py-3`}>
-        <Text className='text-center'>
+    className={`bg-yellow-300 ${colors[0]} text-gray-800 rounded-xl w-full my-4 py-2`}>
+        <Text className='text-gray-800 text-center text-lg'>
             {title}
         </Text>
     </TouchableHighlight>

@@ -13,7 +13,7 @@ const Header:FC = () => {
 
   return isLoading ? <Loader/> : (
     <View className = 'px-4 flex-row items-center'>
-      <Avatar name='Zhansen'/>
+      <Avatar name={name}/>
       <TouchableOpacity 
       onPress={() => navigate('Profile')}
       className='flex-row items-end'
