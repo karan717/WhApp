@@ -8,6 +8,7 @@ import Entypo from 'react-native-vector-icons/Entypo'
 
 const Header:FC = () => {
   const {isLoading, name} = useProfile()
+
   const {navigate} = useNavigation()
 
   return isLoading ? <Loader/> : (

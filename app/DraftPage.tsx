@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import type {PropsWithChildren} from 'react';
 import {
     SafeAreaView,
@@ -31,7 +31,7 @@ function Section({children, title}: SectionProps): JSX.Element {
       </View>
     );
   }  
-const DraftPage = () => {
+const DraftPage:FC = () => {
     const isDarkMode = useColorScheme() === 'dark';
     const [text, onChangeText] = React.useState('Username')
     const [text2, onChangeText2] = React.useState('Password')

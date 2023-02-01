@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "291383799082",
+    "project_id": "wheelchair-2e5db",
+    "storage_bucket": "wheelchair-2e5db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291383799082:android:5d7c3fefa9a19c864bc253",
+        "android_client_info": {
+          "package_name": "com.whapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291383799082-rq64llrgcds0qaujqm68ltq99qg0eaqg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAECpUMhdnRPlUxJhM_QV_AtLvJa2VGDqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291383799082-rq64llrgcds0qaujqm68ltq99qg0eaqg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "291383799082-1f69nncuevu4lvu4nr0fjmdomiuqd2ub.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.WhApp2"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291383799082:android:49b63b4de00b4f554bc253",
+        "android_client_info": {
+          "package_name": "com.whapp2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291383799082-rq64llrgcds0qaujqm68ltq99qg0eaqg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAECpUMhdnRPlUxJhM_QV_AtLvJa2VGDqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291383799082-rq64llrgcds0qaujqm68ltq99qg0eaqg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "291383799082-1f69nncuevu4lvu4nr0fjmdomiuqd2ub.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.WhApp2"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

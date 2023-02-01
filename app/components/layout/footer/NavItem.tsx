@@ -7,14 +7,15 @@ import { TypeRootStackParamList } from '../../../navigation/types'
 interface INavItem{
     item: IFooterItem
     navigate: (screenName: keyof TypeRootStackParamList) => void
+    currentRoute?: string
 }
 
-const NavItem:FC<INavItem> = ({item,navigate}) => {
-    const isActive = false
+const NavItem:FC<INavItem> = ({item,navigate, currentRoute}) => {
+    const isActive = currentRoute === item.title
   return (
     <Pressable style = {styles.container} onPress={() => navigate(item.title)}>
         <AntDesign name={item.iconName} 
-            className={`text-2xl ${isActive ? 'text-blue-500' : 'text-gray-500'}`}
+            color={isActive?'#3B82F6':'#6B7280'}
             size={20}
         />
         <Text className={`text-sm ${isActive ? 'text-blue-500' : 'text-gray-500'}`}>

@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, Alert } from 'react-native'
 import React, { FC, useState } from 'react'
 import { styleCenter } from '../../layout/Layout'
 import { useAuth } from '../../../hooks/useAuth'
@@ -20,9 +20,9 @@ const Auth:FC = () => {
 
   const authHandler = async () => {
     const {email, password} = data
-
     if(isReg) await register(email,password)
     else await login(email, password)
+
 
     setData({} as IData)
   }

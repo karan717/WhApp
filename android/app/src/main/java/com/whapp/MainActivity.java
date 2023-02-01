@@ -8,6 +8,8 @@ import android.os.Bundle; //for React Navigation
 
 public class MainActivity extends ReactActivity {
 
+
+
   //* For React Navigation
   @Override
   protected void onCreate(Bundle savedInstanceState) {

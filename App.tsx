@@ -2,6 +2,7 @@
 
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
+import { LogBox } from 'react-native';
 
 import {
   SafeAreaView,
@@ -42,5 +43,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 })
+
+//LogBox.ignoreAllLogs()
 
 export default App;

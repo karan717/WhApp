@@ -7,13 +7,18 @@ import { TypeRootStackParamList } from '../../../navigation/types'
 
 interface IFooter{
     navigate: (screenName: keyof TypeRootStackParamList) => void
+    currentRoute?: string
 }
 
-const Footer:FC<IFooter> = ({navigate}) => {
+const Footer:FC<IFooter> = ({navigate, currentRoute}) => {
   return (
     <View style={styles.container}>
       {menu.map(item =>(
-        <NavItem key={item.title} item={item} navigate={navigate}/>
+        <NavItem 
+        key={item.title} 
+        item={item} 
+        navigate={navigate}
+        currentRoute={currentRoute}/>
       ))}
     </View>
   )

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
-import { collection, onSnapshot, query, where, limit } from '@firebase/firestore'
-import { db } from '../../../firebase'
+
+import { Alert } from 'react-native'
+import firestore from '@react-native-firebase/firestore'
 
 interface IProfile {
     _id:string
@@ -14,18 +15,22 @@ export const useProfile = () => {
     const [profile, setProfile] = useState<IProfile>({} as IProfile)
     const [name, setName] = useState('')
 
-    useEffect(() => onSnapshot(query(collection(db, 'users'), 
-    where('_id','==',user?.uid), limit(1)), snapshot =>{
-        const profile = snapshot.docs.map(d => ({
-            ...(d.data() as IProfile),
-            docId: d.id
-        }))[0]
-        
-        setProfile(profile)
-        setName(profile.displayName)
-        setIsLoading(false)
 
-    }), [])
+
+    useEffect(()=>{ firestore().collection('users').where('_id','==',user?.uid).limit(1).onSnapshot(
+        snapshot =>{
+            const profile = snapshot.docs.map(d => ({
+                ...(d.data() as IProfile),
+                docId: d.id
+            }))[0]
+            
+            setProfile(profile)
+            setName(profile.displayName)
+            setIsLoading(false)
+        }
+    )
+
+    },[])
 
     const value = useMemo(() => ({
         profile, isLoading, name, setName

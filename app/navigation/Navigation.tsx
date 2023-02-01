@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native'
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import {createNativeStackNavigator} from '@react-navigation/native-stack'
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native'
 import { useAuth } from '../hooks/useAuth'
@@ -15,8 +15,26 @@ import Footer from '../components/layout/footer/Footer'
 const Stack = createNativeStackNavigator()
 
 const Navigation:FC = () => {
-    const {user} = useAuth()
-    const ref = useNavigationContainerRef()
+  const {user} = useAuth()
+  const ref = useNavigationContainerRef()
+
+  const [name, setName] = useState<string | undefined>(undefined)
+
+  useEffect(() =>{
+    const timeout = setTimeout(() => setName(ref.getCurrentRoute()?.name),100)
+
+    return ()=> clearTimeout(timeout)
+  }, [])
+
+  useEffect(()=> {
+    const listener = ref.addListener('state', ()=> 
+    setName(ref.getCurrentRoute()?.name)
+    )
+
+    return () => {
+      ref.removeListener('state',listener)
+    }
+  }, [])
   return (
     <>
     <NavigationContainer ref={ref}>
@@ -32,7 +50,7 @@ const Navigation:FC = () => {
             </>) : (<Stack.Screen name='Auth' component={Auth} />)}
         </Stack.Navigator>
     </NavigationContainer>
-    <Footer navigate={ref.navigate}/>
+    <Footer navigate={ref.navigate} currentRoute={name}/>
     </>
   )
 }

@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
-
-import { doc, updateDoc } from 'firebase/firestore'
-import { db } from '../../../firebase'
+import firestore from '@react-native-firebase/firestore'
 import { Alert } from 'react-native'
 
 export const useUpdateProfile = (name: string, docId:string) => {
@@ -17,17 +15,17 @@ export const useUpdateProfile = (name: string, docId:string) => {
         if(!user) return
 
         try {
-
-            const docRef = doc(db, 'users', docId)
-
-            await updateDoc(docRef, {
-                displayName: name
+            await firestore().collection('users').doc(docId).update({
+                displayName: name,
             })
 
             setIsSuccess(true)
+            
             setTimeout(() => {
                 setIsLoading(false)
+
             },3000)
+            
         } catch (error:any) {
             Alert.alert('Error update profile',error.message)
             
