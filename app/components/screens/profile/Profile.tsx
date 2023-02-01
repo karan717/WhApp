@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import React, { FC } from 'react'
-import { useProfile } from './useProfile'
+import { IProfile, useProfile } from './useProfile'
 import Heading from '../../ui/Heading'
 import Layout from '../../layout/Layout'
 import Loader from '../../ui/Loader'
@@ -14,10 +14,14 @@ import FieldTitle from '../../ui/FieldTitle'
 
 const Profile:FC = () => {
   const {logout} = useAuth()
-  const {isLoading: isProfileLoading, name, setName, profile} = useProfile()
+  const {isLoading: isProfileLoading, name, setName,
+    surname,setSurname, whModel,setWhModel,rCurrent,setRCurrent,rVoltage,
+    setRVoltage,manWeight,setManWeight, profile} = useProfile()
   const {navigate} = useNavigation()
 
-  const {isLoading, isSuccess,updateProfile} = useUpdateProfile(name, profile.docId)
+  const {isLoading, isSuccess,updateProfile} = useUpdateProfile(name, surname,whModel,rVoltage,rCurrent,
+    manWeight, profile.docId)
+
   return (
     <Layout>
       <View>
@@ -47,6 +51,27 @@ const Profile:FC = () => {
         <FieldTitle name="Name"/>
           <Field onChange={setName} val={name} 
           placeholder='Enter name' />
+
+        <FieldTitle name="Surname"/>
+          <Field onChange={setSurname} val={surname} 
+          placeholder='Enter surname' />
+
+        <FieldTitle name="Wheelchair Model"/>
+          <Field onChange={setWhModel} val={whModel} 
+          placeholder='Enter wheelchair model' />
+
+        <FieldTitle name="Weight, lbs"/>
+          <Field onChange={setManWeight} val={manWeight} 
+          placeholder='Enter your weight' />
+
+        <FieldTitle name="Rated Voltage"/>
+          <Field onChange={setRVoltage} val={rVoltage} 
+          placeholder='Enter rated voltage' />
+
+        <FieldTitle name="Rated Current"/>
+          <Field onChange={setRCurrent} val={rCurrent} 
+          placeholder='Enter rated current' />
+
           <Button onPress={updateProfile} title='Update Profile'
           colors={['bg-yelllow-300','#FBBF24']}/>
 

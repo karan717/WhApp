@@ -1,10 +1,4 @@
-
-
 import auth from '@react-native-firebase/auth'
-
-
-
-
 
 
 export const register = (email: string, password: string) => 

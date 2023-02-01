@@ -4,9 +4,14 @@ import { useAuth } from '../../../hooks/useAuth'
 import { Alert } from 'react-native'
 import firestore from '@react-native-firebase/firestore'
 
-interface IProfile {
+export interface IProfile {
     _id:string
     displayName: string
+    displaySurname:string
+    displayWhModel:string
+    displayRVoltage:string
+    displayRCurrent:string
+    displayManWeight:string
     docId: string
 }
 export const useProfile = () => {
@@ -14,6 +19,11 @@ export const useProfile = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [profile, setProfile] = useState<IProfile>({} as IProfile)
     const [name, setName] = useState('')
+    const [surname,setSurname] = useState('')
+    const [whModel,setWhModel] = useState('')
+    const [rVoltage,setRVoltage] = useState('')
+    const [rCurrent, setRCurrent] = useState('')
+    const [manWeight,setManWeight] = useState('')
 
 
 
@@ -26,6 +36,11 @@ export const useProfile = () => {
             
             setProfile(profile)
             setName(profile.displayName)
+            setSurname(profile.displaySurname)
+            setRVoltage(profile.displayRVoltage)
+            setRCurrent(profile.displayRCurrent)
+            setWhModel(profile.displayWhModel)
+            setManWeight(profile.displayManWeight)
             setIsLoading(false)
         }
     )
@@ -33,8 +48,9 @@ export const useProfile = () => {
     },[])
 
     const value = useMemo(() => ({
-        profile, isLoading, name, setName
-    }), [profile, isLoading, name])
+        profile, isLoading, name, setName,surname,setSurname,whModel,setWhModel,rVoltage,setRVoltage,
+        rCurrent,setRCurrent,manWeight,setManWeight
+    }), [profile, isLoading, name, surname,whModel,rVoltage,rCurrent,manWeight])
 
     return value
 

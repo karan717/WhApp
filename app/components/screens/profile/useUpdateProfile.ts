@@ -3,7 +3,10 @@ import { useAuth } from '../../../hooks/useAuth'
 import firestore from '@react-native-firebase/firestore'
 import { Alert } from 'react-native'
 
-export const useUpdateProfile = (name: string, docId:string) => {
+
+
+export const useUpdateProfile = (name: string,surname:string,
+    whModel:string,rVoltage:string,rCurrent:string,manWeight:string, docId:string) => {
     const {user} = useAuth()
 
     const [isLoading, setIsLoading] = useState(false)
@@ -17,6 +20,11 @@ export const useUpdateProfile = (name: string, docId:string) => {
         try {
             await firestore().collection('users').doc(docId).update({
                 displayName: name,
+                displaySurname: surname,
+                displayWhModel: whModel,
+                displayRVoltage: rVoltage,
+                displayRCurrent: rCurrent,
+                displayManWeight: manWeight,
             })
 
             setIsSuccess(true)
