@@ -1,36 +1,92 @@
 import { View, TextInput, StyleSheet } from 'react-native'
-import React, { FC } from 'react'
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { FC, useState } from 'react'
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+
+
+
+interface Marker {
+  latitude: number
+  longitude: number
+}
+
+
 
 const Route:FC = () => {
+
+  
+
+  const getInitialState = () => {
+    return {
+      region: {
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      },
+    };
+  }
+  const [state, setState] = useState<any>({getInitialState})
+  const [currentMarker,setCurrentMarker] = useState<Marker>({
+    latitude:37.78825,
+    longitude:-122.4324
+  })
+  
+  const onRegionChange = (region:any) => {
+    setState({ region });
+  }
+
+
   return (
     <View style={styles.container}>
       <MapView
        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+       region={state.region}
        style={styles.map}
-       region={{
-         latitude: 37.78825,
-         longitude: -122.4324,
-         latitudeDelta: 0.015,
-         longitudeDelta: 0.0121,
-       }}
+       initialRegion={getInitialState().region}
+       onPress={(e) => {
+        setCurrentMarker({ latitude: e.nativeEvent.coordinate.latitude,
+                          longitude: e.nativeEvent.coordinate.longitude})
+
+        //console.log(e.nativeEvent.coordinate)
+    }}
      >
+      <Marker
+        // draggable
+        coordinate={currentMarker}
+        // onDragEnd={(e) => {
+        //   setCurrentMarker({ latitude: e.nativeEvent.coordinate.latitude,
+        //                     longitude: e.nativeEvent.coordinate.longitude})
+        //   console.log(e.nativeEvent.coordinate)
+        // }}
+        //key={index}
+        //coordinate={currentMarker}
+        //title={marker.title}
+        //description={marker.description}
+      />
      </MapView>
-     <View style={{ position: 'absolute', top: '5%', width: '95%' }}>
-        <TextInput
-          style={{
-            borderRadius: 10,
-            margin: 10,
-            color: '#000',
-            borderColor: '#666',
-            backgroundColor: '#FFF',
-            borderWidth: 1,
-            height: 45,
-            paddingHorizontal: 10,
-            fontSize: 18,
+     <View style={{ position: 'absolute', top: '7%', width: '95%' }}>
+
+        <GooglePlacesAutocomplete
+          placeholder='Search'
+          fetchDetails={true} //To get the details
+          onPress={(data, details = null) => {
+            // 'details' is provided when fetchDetails = true
+            //console.log(data, details); To see Logs on the terminal
+            
+            onRegionChange({latitude: details?.geometry.location.lat,
+              longitude: details?.geometry.location.lng,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,})
+              if(details!=undefined)
+              setCurrentMarker({latitude:details.geometry.location.lat,longitude:details.geometry.location.lng})
           }}
-          placeholder={'Search'}
-          placeholderTextColor={'#666'}
+          query={{
+            key: 'AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64',
+            language: 'en',
+            components: 'country:us',
+          }}
         />
       </View>
     </View>
@@ -55,3 +111,20 @@ const styles = StyleSheet.create({
  });
 
 export default Route
+
+//The very first search bar
+{/* <TextInput
+style={{
+  borderRadius: 10,
+  margin: 10,
+  color: '#000',
+  borderColor: '#666',
+  backgroundColor: '#FFF',
+  borderWidth: 1,
+  height: 45,
+  paddingHorizontal: 10,
+  fontSize: 18,
+}}
+placeholder={'Search'}
+placeholderTextColor={'#666'}
+/> */}
