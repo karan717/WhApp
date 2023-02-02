@@ -31,7 +31,7 @@ const Auth:FC = () => {
       <View className = 'mx-5 justify-center items-center h-full'>
         <View className='w-9/12'>
           <Text className = 'text-center text-gray-800 text-2xl font-bold mb-2'>
-            {isReg ? 'SignUp': 'Sign In'}
+            {isReg ? 'Sign Up': 'Sign In'}
           </Text>
           {isLoading ? <Loader/> :<>
           <Field 
@@ -45,7 +45,7 @@ const Auth:FC = () => {
           onChange={val => setData({...data, password:val})}
           isSecure={true}/>
 
-          <Button onPress={authHandler} title={'Lets go'} />
+          <Button onPress={authHandler} title={isReg ? 'Sign Up': 'Sign In'} />
 
           <Pressable onPress={()=> setIsReg(!isReg)}>
             <Text className='text-gray-800 opacity=30 text-right text-sm'>

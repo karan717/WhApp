@@ -1,4 +1,4 @@
-import { View, Text, TouchableHighlight } from 'react-native'
+import { View, Text, TouchableHighlight, Alert } from 'react-native'
 import React, { FC } from 'react'
 import Header from './Header'
 import Layout from '../../layout/Layout'
@@ -8,10 +8,12 @@ import { useNavigation } from '@react-navigation/native'
 
 //#08F26E #86DC3D #5BC236
 //<Text className='text-2xl text-center pt-40'>Home</Text>
+//'bg-yelllow-300','#FBBF24'
 const Home:FC = () => {
   const {navigate} = useNavigation()
   return (
     <Layout>
+
       <Header/>
       
       <View style={styles.container}>
@@ -31,14 +33,42 @@ const Home:FC = () => {
               User Profile
           </Text>
         </TouchableHighlight>
+
         <TouchableHighlight 
-          onPress={()=>{}} 
+          onPress={()=>{Alert.alert(
+            'Do you want to upload the wheelchair data?',
+          'The data on the wheelchair battery level and geolocation will be uploaded to a server. It helps to improve the routing capabilities of the app',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => Alert.alert('Cancel Pressed'),
+              style: 'cancel',
+            },
+            {
+              text: 'Ok',
+              onPress: () => Alert.alert('The data is uploaded'),
+              style: 'destructive',
+            }
+          ],
+          {
+            cancelable: true,
+            onDismiss: () =>
+              Alert.alert(
+                'Cancel Pressed',
+              ),
+          },)
+        }} 
           underlayColor='#D6D8DB'
           className={`bg-green-500 text-gray-800 rounded-xl w-6/12 my-4 py-3`}>
           <Text className='text-center text-xl text-gray-800'>
               Upload Data
           </Text>
         </TouchableHighlight>
+
+        <Text className='text-center text-gray-800'>
+          Last uploaded on 01/01/2023
+        </Text>
+
       </View>
     </Layout>
   )
