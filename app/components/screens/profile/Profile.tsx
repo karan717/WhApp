@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import React, { FC } from 'react'
 import { IProfile, useProfile } from './useProfile'
 import Heading from '../../ui/Heading'
@@ -23,7 +23,7 @@ const Profile:FC = () => {
     manWeight, profile.docId)
 
   return (
-    <Layout>
+    <Layout isScrollView={false}>
       <View>
         <TouchableOpacity 
         onPress={() => navigate('Home')}
@@ -39,7 +39,7 @@ const Profile:FC = () => {
 
         <Heading text='Profile' isCenter={true}/>
       </View>
-      <View className='px-4'>
+      <ScrollView className='px-4'>
         {isSuccess && (
           <View className='bg-green-500 p-3 py-2 rounded-lg'>
             <Text className='text-white text-center'>
@@ -80,7 +80,7 @@ const Profile:FC = () => {
           <Button onPress={logout} title='Logout'
           colors={['bg-gray-200','#D6D8DB']}/>
         </>}
-      </View>
+      </ScrollView>
     </Layout>
   )
 }

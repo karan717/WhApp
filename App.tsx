@@ -9,7 +9,10 @@ import Navigation from './app/navigation/Navigation';
 
 import { AuthProvider } from './app/providers/AuthProvider';
 import EStyleSheet from 'react-native-extended-stylesheet';
+import {enableLatestRenderer} from 'react-native-maps';
 
+//Google maps
+enableLatestRenderer();
 //To build the EStyleSheet
 EStyleSheet.build();
 
