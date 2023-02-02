@@ -3,6 +3,7 @@ import React, { FC, useState } from 'react'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import MapViewDirections from 'react-native-maps-directions';
 
 
 
@@ -32,6 +33,11 @@ const Route:FC = () => {
     latitude:37.78825,
     longitude:-122.4324
   })
+
+  const [currentLocation, setCurrentLocation] = useState<Marker>({
+    latitude:37.785671507680085,
+    longitude:-122.40639332681894 //Find a function to get current location coordinates
+  })
   
   const onRegionChange = (region:any) => {
     setState({ region });
@@ -45,13 +51,22 @@ const Route:FC = () => {
        region={state.region}
        style={styles.map}
        initialRegion={getInitialState().region}
+       showsUserLocation={true}
+       followsUserLocation={true}
        onPress={(e) => {
         setCurrentMarker({ latitude: e.nativeEvent.coordinate.latitude,
                           longitude: e.nativeEvent.coordinate.longitude})
 
-        //console.log(e.nativeEvent.coordinate)
+        console.log(e.nativeEvent.coordinate)
     }}
      >
+      <MapViewDirections
+          origin={currentLocation}
+          destination={currentMarker}
+          apikey={'AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64'} // insert your API Key here
+          strokeWidth={4}
+          strokeColor="#111111"
+        />
       <Marker
         // draggable
         coordinate={currentMarker}
