@@ -57,7 +57,7 @@ const Route:FC = () => {
         setCurrentMarker({ latitude: e.nativeEvent.coordinate.latitude,
                           longitude: e.nativeEvent.coordinate.longitude})
 
-        console.log(e.nativeEvent.coordinate)
+        //console.log(e.nativeEvent.coordinate)
     }}
      >
       <MapViewDirections
