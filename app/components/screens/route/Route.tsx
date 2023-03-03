@@ -5,7 +5,10 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 
+import axios from 'axios'
 
+
+const URLMongoDB = 'mongodb+srv://wheelchair:wheelchair@cluster0.pywpd.mongodb.net/test'
 
 interface Marker {
   latitude: number
@@ -15,22 +18,25 @@ interface Marker {
 
 
 const Route:FC = () => {
-  //INSTALL AXIOS AND RUN THE COMMAND
-  // var axios = require('axios');
-
-  // var config = {
-  //   method: 'get',
-  //   url: 'https://maps.googleapis.com/maps/api/elevation/json?locations=39.7391536%2C-104.9847034&key=AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64',
-  //   headers: { }
-  // };
-  
-  // axios(config)
-  // .then(function (response:any) {
-  //   console.log(JSON.stringify(response.data));
-  // })
-  // .catch(function (error:any) {
-  //   console.log(error);
-  // });
+  const getElevation = async (args: any) => {
+    // Coordinates of locations to String like: lat%2Clong%7Clat%2Clong%7C...
+    //Elevation API works this way, max points is 512
+    console.log(Object.keys(args.coordinates).length)
+    let pathString = Array.prototype.map.call(args.coordinates, s=> s.latitude+"%2C"+s.longitude).join("%7C");
+    var config = {
+      method: 'get',
+      url: `https://maps.googleapis.com/maps/api/elevation/json?locations=${pathString}&key=AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64`,
+      headers: { }
+    };
+    
+    axios(config)
+    .then(function (response:any) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error:any) {
+      console.log(error);
+    });
+  }
 
   
 
@@ -80,7 +86,7 @@ const Route:FC = () => {
        onPress={(e) => {
         setCurrentMarker({ latitude: e.nativeEvent.coordinate.latitude,
                           longitude: e.nativeEvent.coordinate.longitude})
-
+      
         //console.log(e.nativeEvent.coordinate)
     }}
      >
@@ -91,8 +97,8 @@ const Route:FC = () => {
           strokeWidth={4}
           strokeColor="#111111"
           mode = "WALKING"
-          precision='high'
-          onReady={(args) =>{console.log(args)}}
+          precision='low' //high, precision of the drawn polyline
+          onReady={(args) =>{ getElevation(args)}}
         />
       <Marker
         // draggable
