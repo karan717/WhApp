@@ -8,6 +8,7 @@ export interface IProfile {
     _id:string
     displayName: string
     displaySurname:string
+    displayWhID: string
     displayWhModel:string
     displayRVoltage:string
     displayRCurrent:string
@@ -20,6 +21,7 @@ export const useProfile = () => {
     const [profile, setProfile] = useState<IProfile>({} as IProfile)
     const [name, setName] = useState('')
     const [surname,setSurname] = useState('')
+    const [WhID,setWhID] = useState('')
     const [whModel,setWhModel] = useState('')
     const [rVoltage,setRVoltage] = useState('')
     const [rCurrent, setRCurrent] = useState('')
@@ -39,6 +41,7 @@ export const useProfile = () => {
             setSurname(profile.displaySurname)
             setRVoltage(profile.displayRVoltage)
             setRCurrent(profile.displayRCurrent)
+            setWhID(profile.displayWhID)
             setWhModel(profile.displayWhModel)
             setManWeight(profile.displayManWeight)
             setIsLoading(false)
@@ -48,9 +51,9 @@ export const useProfile = () => {
     },[])
 
     const value = useMemo(() => ({
-        profile, isLoading, name, setName,surname,setSurname,whModel,setWhModel,rVoltage,setRVoltage,
+        profile, isLoading, name, setName,surname,setSurname,WhID,setWhID,whModel,setWhModel,rVoltage,setRVoltage,
         rCurrent,setRCurrent,manWeight,setManWeight
-    }), [profile, isLoading, name, surname,whModel,rVoltage,rCurrent,manWeight])
+    }), [profile, isLoading, name, surname,WhID,whModel,rVoltage,rCurrent,manWeight])
 
     return value
 

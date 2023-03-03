@@ -5,7 +5,7 @@ import { Alert } from 'react-native'
 
 
 
-export const useUpdateProfile = (name: string,surname:string,
+export const useUpdateProfile = (name: string,surname:string,WhID:string,
     whModel:string,rVoltage:string,rCurrent:string,manWeight:string, docId:string) => {
     const {user} = useAuth()
 
@@ -21,6 +21,7 @@ export const useUpdateProfile = (name: string,surname:string,
             await firestore().collection('users').doc(docId).update({
                 displayName: name,
                 displaySurname: surname,
+                displayWhID:WhID,
                 displayWhModel: whModel,
                 displayRVoltage: rVoltage,
                 displayRCurrent: rCurrent,

@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React, { FC } from 'react'
-import BLEScreen from '../BLEScreen'
 import Layout from '../../layout/Layout'
+import BLECharging from './BLECharging'
 
 
 
@@ -11,7 +11,7 @@ const Charging:FC = () => {
     <Layout isScrollView={false}>
     
     <Text className='text-2xl text-center pt-10'>Charging</Text>
-    <BLEScreen></BLEScreen>
+    <BLECharging></BLECharging>
     
     </Layout>
    

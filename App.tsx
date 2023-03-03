@@ -4,12 +4,12 @@ import { LogBox } from 'react-native';
 import {
   View,
 } from 'react-native';
-import DraftPage from './app/DraftPage';
 import Navigation from './app/navigation/Navigation';
 
 import { AuthProvider } from './app/providers/AuthProvider';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import {enableLatestRenderer} from 'react-native-maps';
+import { BLEProvider } from './app/providers/BLEProvider';
 
 //Google maps
 enableLatestRenderer();
@@ -21,7 +21,9 @@ function App(): JSX.Element {
 
   return (
     <AuthProvider>
-      <Navigation/>
+      <BLEProvider>
+        <Navigation/>
+      </BLEProvider>
     </AuthProvider>
   );
 }

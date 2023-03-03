@@ -1,4 +1,4 @@
-import { View, TextInput, StyleSheet } from 'react-native'
+import { View, TextInput, StyleSheet, TouchableHighlight, Text } from 'react-native'
 import React, { FC, useState } from 'react'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -15,14 +15,30 @@ interface Marker {
 
 
 const Route:FC = () => {
+  //INSTALL AXIOS AND RUN THE COMMAND
+  // var axios = require('axios');
+
+  // var config = {
+  //   method: 'get',
+  //   url: 'https://maps.googleapis.com/maps/api/elevation/json?locations=39.7391536%2C-104.9847034&key=AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64',
+  //   headers: { }
+  // };
+  
+  // axios(config)
+  // .then(function (response:any) {
+  //   console.log(JSON.stringify(response.data));
+  // })
+  // .catch(function (error:any) {
+  //   console.log(error);
+  // });
 
   
 
   const getInitialState = () => {
     return {
       region: {
-        latitude: 37.78825,
-        longitude: -122.4324,
+        latitude: 35.7741349,
+        longitude: -78.6776105,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       },
@@ -30,13 +46,13 @@ const Route:FC = () => {
   }
   const [state, setState] = useState<any>({getInitialState})
   const [currentMarker,setCurrentMarker] = useState<Marker>({
-    latitude:37.78825,
-    longitude:-122.4324
+    latitude:35.7741349,
+    longitude:-78.6776105
   })
 
   const [currentLocation, setCurrentLocation] = useState<Marker>({
-    latitude:37.785671507680085,
-    longitude:-122.40639332681894 //Find a function to get current location coordinates
+    latitude:35.7741349,
+    longitude:-78.6776105 //Find a function to get current location coordinates
   })
   
   const onRegionChange = (region:any) => {
@@ -46,6 +62,14 @@ const Route:FC = () => {
 
   return (
     <View style={styles.container}>
+        <TouchableHighlight
+          onPress={()=> console.log()} 
+          underlayColor='#D6D8DB'
+          className={`bg-green-500 text-gray-800 rounded-xl w-6/12 my-4 py-3`}>
+          <Text className='text-center text-xl text-gray-800'>
+              User Profile
+          </Text>
+        </TouchableHighlight>
       <MapView
        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
        region={state.region}
@@ -66,6 +90,9 @@ const Route:FC = () => {
           apikey={'AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64'} // insert your API Key here
           strokeWidth={4}
           strokeColor="#111111"
+          mode = "WALKING"
+          precision='high'
+          onReady={(args) =>{console.log(args)}}
         />
       <Marker
         // draggable

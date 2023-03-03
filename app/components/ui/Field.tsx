@@ -19,6 +19,7 @@ const Field :FC<IField>= ({onChange,placeholder,val,isSecure}) => {
     value={val}
     secureTextEntry={isSecure}
     autoCapitalize='none'
+    placeholderTextColor="#888"
     //className='text-lg rounded-xl bg-gray-100 mt-3 p-3 w-full'
     style={styles.field}
     />

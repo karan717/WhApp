@@ -15,11 +15,11 @@ import FieldTitle from '../../ui/FieldTitle'
 const Profile:FC = () => {
   const {logout} = useAuth()
   const {isLoading: isProfileLoading, name, setName,
-    surname,setSurname, whModel,setWhModel,rCurrent,setRCurrent,rVoltage,
+    surname,setSurname,WhID,setWhID, whModel,setWhModel,rCurrent,setRCurrent,rVoltage,
     setRVoltage,manWeight,setManWeight, profile} = useProfile()
   const {navigate} = useNavigation()
 
-  const {isLoading, isSuccess,updateProfile} = useUpdateProfile(name, surname,whModel,rVoltage,rCurrent,
+  const {isLoading, isSuccess,updateProfile} = useUpdateProfile(name, surname,WhID,whModel,rVoltage,rCurrent,
     manWeight, profile.docId)
 
   return (
@@ -48,13 +48,17 @@ const Profile:FC = () => {
           </View>
         )}
         {(isProfileLoading || isLoading) ? <Loader/> : <>
-        <FieldTitle name="Name"/>
+        <FieldTitle name="First Name"/>
           <Field onChange={setName} val={name} 
-          placeholder='Enter name' />
+          placeholder='Enter first name' />
 
-        <FieldTitle name="Family Name"/>
+        <FieldTitle name="Last Name"/>
           <Field onChange={setSurname} val={surname} 
-          placeholder='Enter family name' />
+          placeholder='Enter last name' />
+
+        <FieldTitle name="Wheelchair ID *"/>
+          <Field onChange={setWhID} val={WhID} 
+          placeholder='Wheelchair ID: 123456' isSecure={true} />
 
         <FieldTitle name="Battery Voltage (Max.) *"/>
           <Field onChange={setRVoltage} val={rVoltage} 
