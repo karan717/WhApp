@@ -1,14 +1,14 @@
 import { View, TextInput, StyleSheet, TouchableHighlight, Text } from 'react-native'
-import React, { FC, useState } from 'react'
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { FC, useEffect, useState } from 'react'
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
 
 import axios from 'axios'
-
-
-const URLMongoDB = 'mongodb+srv://wheelchair:wheelchair@cluster0.pywpd.mongodb.net/test'
+import { useUploadPath } from './useUploadPath';
+import { useProfile } from '../profile/useProfile';
+import firestore from '@react-native-firebase/firestore'
 
 interface Marker {
   latitude: number
@@ -16,11 +16,21 @@ interface Marker {
 }
 
 
+//Important link on Firestore usage for React Native
+//https://rnfirebase.io/firestore/usage
+
+
 
 const Route:FC = () => {
+  const {profile} = useProfile()
+  const [elevations,setElevations] = useState<any>('')
+
+  const {isLoading, isSuccess,uploadPath} = useUploadPath()
+
   const getElevation = async (args: any) => {
     // Coordinates of locations to String like: lat%2Clong%7Clat%2Clong%7C...
     //Elevation API works this way, max points is 512
+    console.log('Coordinates length:')
     console.log(Object.keys(args.coordinates).length)
     let pathString = Array.prototype.map.call(args.coordinates, s=> s.latitude+"%2C"+s.longitude).join("%7C");
     var config = {
@@ -31,7 +41,10 @@ const Route:FC = () => {
     
     axios(config)
     .then(function (response:any) {
-      console.log(JSON.stringify(response.data));
+      console.log(JSON.stringify(response.data.results));
+      setElevations(response.data.results)
+      uploadPath(response.data.results,profile.docId)
+      console.log(profile.docId)
     })
     .catch(function (error:any) {
       console.log(error);
@@ -56,14 +69,29 @@ const Route:FC = () => {
     longitude:-78.6776105
   })
 
+  //Find a function to get current location coordinates
   const [currentLocation, setCurrentLocation] = useState<Marker>({
     latitude:35.7741349,
-    longitude:-78.6776105 //Find a function to get current location coordinates
+    longitude:-78.6776105 
   })
   
   const onRegionChange = (region:any) => {
     setState({ region });
   }
+
+  //To see changes in the document when it is updated in Firebase
+  useEffect(() => {
+    const subscriber = firestore()
+      .collection('predictedSoC')
+      .doc(profile._id)
+      .onSnapshot(documentSnapshot => {
+        console.log('User data: ', documentSnapshot.data());
+      });
+      //console.log(profile._id)
+
+    // Stop listening for updates when no longer required
+    return () => subscriber();
+  }, []);
 
 
   return (
@@ -94,11 +122,33 @@ const Route:FC = () => {
           origin={currentLocation}
           destination={currentMarker}
           apikey={'AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64'} // insert your API Key here
-          strokeWidth={4}
-          strokeColor="#111111"
+          strokeWidth={0.1}
+          strokeColor="#F0F0F0"
           mode = "WALKING"
           precision='low' //high, precision of the drawn polyline
-          onReady={(args) =>{ getElevation(args)}}
+          onReady={(args) =>{ getElevation(args); console.log(args.coordinates)}}
+        />
+        	<Polyline
+          coordinates={[
+            {"latitude": 35.77415, "longitude": -78.67773}, 
+            {"latitude": 35.77414, "longitude": -78.67777}, 
+            {"latitude": 35.77421, "longitude": -78.67793}, 
+            {"latitude": 35.77407, "longitude": -78.67801}, 
+            {"latitude": 35.77419, "longitude": -78.67828}, 
+            {"latitude": 35.77445, "longitude": -78.67891}, 
+            {"latitude": 35.77468, "longitude": -78.67932}
+          ]}
+          strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
+          strokeColors={[
+            '#7F0000',
+            '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
+            '#B24112',
+            '#E5845C',
+            '#238C23',
+            '#7F0000',
+            '#7F0000'
+          ]}
+          strokeWidth={6}
         />
       <Marker
         // draggable
