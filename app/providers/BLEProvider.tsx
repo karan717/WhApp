@@ -179,6 +179,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
   }
 
   useEffect(() => {
+    handleAndroidPermissionCheck();
     BleManager.start({showAlert: false});
 
     const listeners = [
@@ -203,7 +204,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       ),
     ];
 
-    handleAndroidPermissionCheck();
+    
 
 
     return () => {
@@ -221,6 +222,24 @@ export const BLEProvider: FC<Props> =  ({children})  => {
 
   const handleAndroidPermissionCheck = () => {
     if (Platform.OS === 'android' && Platform.Version >= 23) {
+      PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+      ).then(result => {
+        if (result) {
+          console.log('Permission is OK');
+        } else {
+          PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          ).then(result => {
+            if (result) {
+              console.log('User accept');
+            } else {
+              console.log('User refuse');
+            }
+          });
+        }
+      });
+      
       PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       ).then(result => {

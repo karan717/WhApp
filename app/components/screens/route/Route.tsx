@@ -1,6 +1,6 @@
-import { View, TextInput, StyleSheet, TouchableHighlight, Text } from 'react-native'
+import { View, TextInput, StyleSheet, TouchableHighlight, Text, AccessibilityInfo } from 'react-native'
 import React, { FC, useEffect, useState } from 'react'
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Callout, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapViewDirections from 'react-native-maps-directions';
@@ -15,6 +15,7 @@ import { useElevation } from '../../../hooks/useElevation';
 import { useStates } from '../../../hooks/useStates';
 import { useCharger } from '../../../hooks/useCharger';
 import Button from '../../ui/Button';
+import { useRouteInfo } from '../../../hooks/useRouteInfo';
 
 interface Marker {
   latitude: number
@@ -28,20 +29,24 @@ interface Marker {
 
 
 const Route:FC = () => {
+  const [showInfo,setShowInfo] = useState(false)
   const {profile} = useProfile()
   const {path,setPath} = usePath();
   const {elevation,setElevation} = useElevation();
   const {markerA,markerB,currentLocation,setMarkerA,
   setMarkerB,setCurrentLocation} = useStates();
+  const [markerBRef,setMarkerBRef] = useState<any>('');
   const {chargers,setChargers} = useCharger();
-
+  const {distance,duration,finalSoC,setDistance,setDuration,setFinalSoC} = useRouteInfo();
   const {isLoading, isSuccess,uploadPath} = useUploadPath()
 
   const getElevation = async (args: any) => {
     // Coordinates of locations to String like: lat%2Clong%7Clat%2Clong%7C...
     //Elevation API works this way, max points is 512
     console.log('Coordinates length:')
+    //console.log(args)
     console.log(Object.keys(args.coordinates).length)
+
     let pathString = Array.prototype.map.call(args.coordinates, s=> s.latitude+"%2C"+s.longitude).join("%7C");
     var config = {
       method: 'get',
@@ -123,11 +128,16 @@ const Route:FC = () => {
         fetchChargers().catch(console.error);
         //console.log(chargers)
       }
+      if(markerBRef!==''){
+        markerBRef.hideCallout()
+        markerBRef.showCallout()
+      }
+      console.log('call effect Route')
       //console.log(profile._id)
 
     // Stop listening for updates when no longer required
     return () => subscriber();
-  }, []);
+  }, [markerBRef,distance]);
 
 
   return (
@@ -152,6 +162,9 @@ const Route:FC = () => {
           longitude: e.nativeEvent.coordinate.longitude})
         setMarkerA(currentLocation)
         console.log('MarkerA',markerA)
+        if(markerBRef!==''){
+          markerBRef.hideCallout()
+        }
       
         //console.log(e.nativeEvent.coordinate)
     }}
@@ -165,7 +178,16 @@ const Route:FC = () => {
           strokeColor="#F0F0F0"
           mode = "WALKING"
           precision='low' //high, precision of the drawn polyline
-          onReady={(args) =>{ getElevation(args); setPath(args.coordinates);}}
+          onReady={(args) =>{ getElevation(args); setPath(args.coordinates);
+            setDistance(Number((args.distance).toFixed(1)))
+            setDuration(Number((args.duration).toFixed(1)))
+            setFinalSoC(47)
+            setShowInfo(true)
+            if(markerBRef!==''){
+              markerBRef.showCallout()
+            }
+          
+          }}
         />
       }
       {path!==''&&
@@ -186,6 +208,8 @@ const Route:FC = () => {
       }
       {markerB!=='' &&
       <Marker
+        title={`${distance} mi., ${duration} min.`}
+        description={duration+`${finalSoC}% battery remains`}
         // draggable
         coordinate={markerB}
         // onDragEnd={(e) => {
@@ -197,19 +221,46 @@ const Route:FC = () => {
         //coordinate={currentMarker}
         //title={marker.title}
         //description={marker.description}
-      />
-      }
+        ref={setMarkerBRef}
+      >
+        {/* <Callout tooltip={true}>
 
+          <View style={styles.infoWindow}>       
+          <Text style={styles.infoText}>{distance} mi, {duration}min away</Text>
+          <Text style={styles.infoText}>{finalSoC}% battery remains</Text>
+          </View>
+
+          </Callout> */}
+
+      </Marker>
+      }
+      {/*Info window: https://github.com/react-native-maps/react-native-maps/issues/3267*/}
       {chargers!=='' && 
       chargers.map((item:any) =>(
         <Marker 
+          title={`${distance} mi., ${duration} min.`}
+          description={`${finalSoC}% battery remains`}
+          key={item.key}
           coordinate={{
-            latitude:item.data.location.lat,
-            longitude:item.data.location.lng
+            latitude:parseFloat(item.data.location.lat),
+            longitude:parseFloat(item.data.location.lng)
           }}
           pinColor={item.data.state==='1'?'#00FF00':'#FF0000'}
-          onPress={()=>console.log('Pressed Station')}
-        />
+          onPress={(e)=>{        
+            setMarkerB({ latitude: e.nativeEvent.coordinate.latitude,
+            longitude: e.nativeEvent.coordinate.longitude})
+            setMarkerA(currentLocation)}}
+        >
+{/*           
+           <Callout tooltip={true}>
+
+            <View style={styles.infoWindow}>       
+            <Text style={styles.infoText}>{distance} mi, {duration}min away</Text>
+            <Text style={styles.infoText}>{finalSoC}% battery remains</Text>
+            </View>
+            
+          </Callout> */}
+        </Marker>
       ))}
 
 
@@ -267,6 +318,19 @@ const styles = StyleSheet.create({
   theme: {
     height: 100,
     width: 400,
+  },
+  infoWindow: {
+    borderRadius: 10,
+    margin: 2,
+    color: '#000',
+    borderColor: '#666',
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+  },
+  infoText: {
+    fontSize:16,
+    padding:5,
   }
  });
 

@@ -15,6 +15,7 @@ import { ElevationProvider } from './app/providers/ElevationProvider';
 import { SoCProvider } from './app/providers/SoCProvider';
 import { ChargerProvider } from './app/providers/ChargerProvider';
 import { StatesProvider } from './app/providers/StatesProvider';
+import { RouteInfoProvider } from './app/providers/RouteInfoProvider';
 
 //Google maps
 enableLatestRenderer();
@@ -32,7 +33,9 @@ function App(): JSX.Element {
             <SoCProvider>
               <ChargerProvider>
                 <StatesProvider>
-                  <Navigation/>
+                  <RouteInfoProvider>
+                    <Navigation/>
+                  </RouteInfoProvider>
                 </StatesProvider>
               </ChargerProvider>
             </SoCProvider>

@@ -29,7 +29,9 @@ export const useProfile = () => {
 
 
 
-    useEffect(()=>{ firestore().collection('users').where('_id','==',user?.uid).limit(1).onSnapshot(
+    useEffect(()=>{ 
+    try{
+        firestore().collection('users').where('_id','==',user?.uid).limit(1).onSnapshot(
         snapshot =>{
             const profile = snapshot.docs.map(d => ({
                 ...(d.data() as IProfile),
@@ -47,6 +49,9 @@ export const useProfile = () => {
             setIsLoading(false)
         }
     )
+    } catch(error){
+        console.log(error)
+    }
 
     },[])
 
