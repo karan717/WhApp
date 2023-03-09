@@ -1,5 +1,5 @@
 import { View, TextInput, StyleSheet, TouchableHighlight, Text, AccessibilityInfo } from 'react-native'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MapView, { Callout, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -16,6 +16,7 @@ import { useStates } from '../../../hooks/useStates';
 import { useCharger } from '../../../hooks/useCharger';
 import Button from '../../ui/Button';
 import { useRouteInfo } from '../../../hooks/useRouteInfo';
+import BottomSheet from "@gorhom/bottom-sheet"
 
 interface Marker {
   latitude: number
@@ -39,6 +40,18 @@ const Route:FC = () => {
   const {chargers,setChargers} = useCharger();
   const {distance,duration,finalSoC,setDistance,setDuration,setFinalSoC} = useRouteInfo();
   const {isLoading, isSuccess,uploadPath} = useUploadPath()
+
+    // ref
+    const bottomSheetRef = useRef<BottomSheet>(null);
+
+    // variables
+    const snapPoints = useMemo(() => ['1%', '25%'], []);
+  
+    // callbacks
+    const handleSheetChanges = useCallback((index: number) => {
+      console.log('handleSheetChanges', index);
+    }, []);
+
 
   const getElevation = async (args: any) => {
     // Coordinates of locations to String like: lat%2Clong%7Clat%2Clong%7C...
@@ -300,6 +313,16 @@ const Route:FC = () => {
           console.log(markerA)
         } } 
       />        */}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={1}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+      >
+        <Text>
+          Hello World
+        </Text>
+      </BottomSheet>
     </View>
   )
 }
@@ -307,8 +330,7 @@ const Route:FC = () => {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    height: 800,
-    width: 400,
+
     justifyContent: 'flex-end',
     alignItems: 'center',
   },

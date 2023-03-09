@@ -16,6 +16,7 @@ import { SoCProvider } from './app/providers/SoCProvider';
 import { ChargerProvider } from './app/providers/ChargerProvider';
 import { StatesProvider } from './app/providers/StatesProvider';
 import { RouteInfoProvider } from './app/providers/RouteInfoProvider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 //Google maps
 enableLatestRenderer();
@@ -26,23 +27,25 @@ EStyleSheet.build();
 function App(): JSX.Element {
 
   return (
-    <AuthProvider>
-      <BLEProvider>
-        <PathProvider>
-          <ElevationProvider>
-            <SoCProvider>
-              <ChargerProvider>
-                <StatesProvider>
-                  <RouteInfoProvider>
-                    <Navigation/>
-                  </RouteInfoProvider>
-                </StatesProvider>
-              </ChargerProvider>
-            </SoCProvider>
-          </ElevationProvider>
-        </PathProvider>
-      </BLEProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{flex:1}}>
+      <AuthProvider>
+        <BLEProvider>
+          <PathProvider>
+            <ElevationProvider>
+              <SoCProvider>
+                <ChargerProvider>
+                  <StatesProvider>
+                    <RouteInfoProvider>
+                      <Navigation/>
+                    </RouteInfoProvider>
+                  </StatesProvider>
+                </ChargerProvider>
+              </SoCProvider>
+            </ElevationProvider>
+          </PathProvider>
+        </BLEProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
 
