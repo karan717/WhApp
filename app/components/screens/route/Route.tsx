@@ -7,6 +7,8 @@ import MapViewDirections from 'react-native-maps-directions';
 import firestore from '@react-native-firebase/firestore'
 import axios from 'axios'
 
+import Entypo from 'react-native-vector-icons/Entypo'
+
 //Contexts that are used as a global parameters
 import { useUploadPath } from './useUploadPath';
 import { useProfile } from '../profile/useProfile';
@@ -30,27 +32,36 @@ interface Marker {
 
 
 const Route:FC = () => {
-  const [showInfo,setShowInfo] = useState(false)
+  const [chargerPressed,setChargerPressed] = useState<boolean>(false)
+  const [showMarker,setShowMarker] = useState<boolean>(false)
+  const [markerBRef,setMarkerBRef] = useState<any>('');
   const {profile} = useProfile()
   const {path,setPath} = usePath();
   const {elevation,setElevation} = useElevation();
   const {markerA,markerB,currentLocation,setMarkerA,
   setMarkerB,setCurrentLocation} = useStates();
-  const [markerBRef,setMarkerBRef] = useState<any>('');
   const {chargers,setChargers} = useCharger();
   const {distance,duration,finalSoC,setDistance,setDuration,setFinalSoC} = useRouteInfo();
   const {isLoading, isSuccess,uploadPath} = useUploadPath()
-
-    // ref
-    const bottomSheetRef = useRef<BottomSheet>(null);
-
-    // variables
-    const snapPoints = useMemo(() => ['1%', '25%'], []);
   
-    // callbacks
-    const handleSheetChanges = useCallback((index: number) => {
-      console.log('handleSheetChanges', index);
-    }, []);
+  //it has 3 states:
+  //default, infoState: after marker or place pressed, routeState: after pressing directions, show the route
+  const [pageState,setPageState] = useState<string>('default')
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // variables for points of snap
+  const snapPoints = useMemo(() => ['15%', '25%'], []);
+
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
+  // Close or Open Bottom Sheet long and short (25% and 10%)
+  const handleClose = () => bottomSheetRef.current!==null && bottomSheetRef.current.close()
+  const handleOpenLong = () => bottomSheetRef.current!==null && bottomSheetRef.current.snapToIndex(1)
+  const handleOpenShort = () => bottomSheetRef.current!==null && bottomSheetRef.current.snapToIndex(0)
 
 
   const getElevation = async (args: any) => {
@@ -127,7 +138,9 @@ const Route:FC = () => {
       .collection('predictedSoC')
       .doc(profile._id)
       .onSnapshot(documentSnapshot => {
-        console.log('User data: ', documentSnapshot.data());
+        console.log('User data: ', documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC);
+        //setFinalSoC(documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC)
+        documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC!==undefined && setFinalSoC(Number((documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC).toFixed(1)))
       });
       setCurrentLocation({
         latitude:35.7741349,
@@ -141,7 +154,7 @@ const Route:FC = () => {
         fetchChargers().catch(console.error);
         //console.log(chargers)
       }
-      if(markerBRef!==''){
+      if(markerBRef!==''&&markerBRef!==null){
         markerBRef.hideCallout()
         markerBRef.showCallout()
       }
@@ -150,16 +163,21 @@ const Route:FC = () => {
 
     // Stop listening for updates when no longer required
     return () => subscriber();
-  }, [markerBRef,distance]);
+  }, [markerBRef,distance,profile]);
 
 
   return (
     <View style={styles.container}>
       <MapView
        provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-       region={state.region}
+       //region={state.region}
        style={styles.map}
-       initialRegion={getInitialState().region}
+       initialRegion={{
+        latitude:currentLocation.latitude,
+        longitude:currentLocation.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
        showsUserLocation={true}
        followsUserLocation={true}
        onUserLocationChange={(args)=>{
@@ -173,16 +191,40 @@ const Route:FC = () => {
        onPress={(e) => {
         setMarkerB({ latitude: e.nativeEvent.coordinate.latitude,
           longitude: e.nativeEvent.coordinate.longitude})
-        setMarkerA(currentLocation)
-        console.log('MarkerA',markerA)
-        if(markerBRef!==''){
-          markerBRef.hideCallout()
-        }
-      
-        //console.log(e.nativeEvent.coordinate)
+          console.log('Simple Map Press',chargerPressed,showMarker)
+          console.log(pageState)
+          if(showMarker){
+            setShowMarker(false)
+            setPageState('default')
+            handleClose()
+
+          }else{
+            setShowMarker(true)
+            setPageState('infoState')
+            handleOpenLong()
+          }
+          if(chargerPressed){
+            setChargerPressed(false)
+            setShowMarker(false)
+            setPageState('default')
+            handleClose()
+
+          }
+          console.log('OnPress')
+          
     }}
+    onPoiClick={
+      (e) => {
+        setMarkerB({ latitude: e.nativeEvent.coordinate.latitude,
+          longitude: e.nativeEvent.coordinate.longitude})
+          setShowMarker(true)
+          setChargerPressed(false)
+          setPageState('infoState')
+          handleOpenLong()
+      }
+    }
      >
-      { markerB!=='' &&
+      { markerB!=='' && pageState==='routeState' &&
       <MapViewDirections
           origin={markerA}
           destination={markerB}
@@ -192,18 +234,17 @@ const Route:FC = () => {
           mode = "WALKING"
           precision='low' //high, precision of the drawn polyline
           onReady={(args) =>{ getElevation(args); setPath(args.coordinates);
-            setDistance(Number((args.distance).toFixed(1)))
+            setDistance(Number((args.distance*0.621371).toFixed(1))) // km to mile
             setDuration(Number((args.duration).toFixed(1)))
             setFinalSoC(47)
-            setShowInfo(true)
-            if(markerBRef!==''){
+            if(markerBRef!==''&&markerBRef!==null){
               markerBRef.showCallout()
             }
           
           }}
         />
       }
-      {path!==''&&
+      {path!=='' && pageState==='routeState' && 
         	<Polyline
           coordinates={path}
           strokeColor="#111111" // fallback for when `strokeColors` is not supported by the map-provider
@@ -219,10 +260,10 @@ const Route:FC = () => {
           strokeWidth={6}
         />
       }
-      {markerB!=='' &&
+      {markerB!=='' && showMarker && !chargerPressed &&
       <Marker
-        title={`${distance} mi., ${duration} min.`}
-        description={duration+`${finalSoC}% battery remains`}
+        //title={`${distance} mi., ${duration} min.`}
+        //description={duration+`${finalSoC}% battery remains`}
         // draggable
         coordinate={markerB}
         // onDragEnd={(e) => {
@@ -251,8 +292,8 @@ const Route:FC = () => {
       {chargers!=='' && 
       chargers.map((item:any) =>(
         <Marker 
-          title={`${distance} mi., ${duration} min.`}
-          description={`${finalSoC}% battery remains`}
+          title={item.data.name}
+          description={''}
           key={item.key}
           coordinate={{
             latitude:parseFloat(item.data.location.lat),
@@ -262,8 +303,20 @@ const Route:FC = () => {
           onPress={(e)=>{        
             setMarkerB({ latitude: e.nativeEvent.coordinate.latitude,
             longitude: e.nativeEvent.coordinate.longitude})
-            setMarkerA(currentLocation)}}
+            setMarkerA(currentLocation)
+            setShowMarker(false)
+            setChargerPressed(true)
+            setPageState('infoState')
+            handleOpenLong()
+            console.log('onPressCharger')
+          }}
+            
         >
+        <Entypo name={'power-plug'} 
+            color={item.data.state==='1'?'#00FF00':'#FF0000'}
+            size={30}
+        />
+          
 {/*           
            <Callout tooltip={true}>
 
@@ -293,6 +346,10 @@ const Route:FC = () => {
               longitudeDelta: 0.0421,})
               if(details!=undefined)
               setMarkerB({latitude:details.geometry.location.lat,longitude:details.geometry.location.lng})
+              setShowMarker(true)
+              setChargerPressed(false)
+              setPageState('infoState')
+              handleOpenLong()
           }}
           query={{
             key: 'AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64',
@@ -313,16 +370,35 @@ const Route:FC = () => {
           console.log(markerA)
         } } 
       />        */}
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={1}
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-      >
-        <Text>
-          Hello World
-        </Text>
-      </BottomSheet>
+      { profile._id!==undefined && //This line will remove errors with snapPoints being undefined
+                                  // At first render, all states are null or undefined until they initialize,  we should wait for states,
+                                  // for example profile._id is one of the state that will initialize at first
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={-1}
+          snapPoints={snapPoints}
+          onChange={handleSheetChanges}
+          enablePanDownToClose={true}
+        >
+          { pageState==='infoState' &&
+            <Button
+            title={'Destinations'}
+            onPress={() => {
+              if(pageState==='infoState'){
+              setPageState('routeState')
+              handleOpenShort()
+              }else{
+                setPageState('infoState')
+              }
+            } } 
+            />  
+          }
+          <Text style={styles.text}>
+          {pageState ==='routeState' && `${finalSoC}% battery remains \n ${distance} mi., ${duration} min.`}
+
+          </Text>
+        </BottomSheet>
+      }
     </View>
   )
 }
@@ -353,6 +429,13 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize:16,
     padding:5,
+  },
+  text: {
+    fontSize: 18,
+    textAlign: 'center',
+    margin: 3,
+    paddingBottom:80,
+    color: "#1F2937",
   }
  });
 
