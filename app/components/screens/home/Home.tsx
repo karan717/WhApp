@@ -62,7 +62,7 @@ const Home:FC = (props) => {
           <TouchableHighlight 
             onPress={async ()=> {
               console.log(peripherals)
-              console.log(typeof whPeripheral.id)
+              //console.log(typeof whPeripheral.id)
               if(whPeripheral===undefined){
                 await startScan();
               }else

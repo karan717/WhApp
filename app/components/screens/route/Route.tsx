@@ -191,24 +191,36 @@ const Route:FC = () => {
        onPress={(e) => {
         setMarkerB({ latitude: e.nativeEvent.coordinate.latitude,
           longitude: e.nativeEvent.coordinate.longitude})
-          console.log('Simple Map Press',chargerPressed,showMarker)
-          console.log(pageState)
-          if(showMarker){
-            setShowMarker(false)
-            setPageState('default')
-            handleClose()
 
-          }else{
-            setShowMarker(true)
-            setPageState('infoState')
-            handleOpenLong()
-          }
-          if(chargerPressed){
-            setChargerPressed(false)
-            setShowMarker(false)
-            setPageState('default')
-            handleClose()
+          // let chrgMatch = chargers.map((item:any)=>{
+          //   let matching = parseFloat(item.data.location.lat)===e.nativeEvent.coordinate.latitude && parseFloat(item.data.location.lng)===e.nativeEvent.coordinate.longitude;
+          //   return matching;
+          // })
+          // console.log('Old Match',chrgMatch)
 
+          // See if we pressed on Charger or the empty space around.
+          let matchCharger = chargers.some((item:any)=>{
+            return parseFloat(item.data.location.lat)===e.nativeEvent.coordinate.latitude && parseFloat(item.data.location.lng)===e.nativeEvent.coordinate.longitude;
+          })
+
+          if(!matchCharger){
+            if(showMarker){
+              setShowMarker(false)
+              setPageState('default')
+              handleClose()
+
+            }else{
+              setShowMarker(true)
+              setPageState('infoState')
+              handleOpenLong()
+            }
+            if(chargerPressed){
+              setChargerPressed(false)
+              setShowMarker(false)
+              setPageState('default')
+              handleClose()
+
+            }
           }
           console.log('OnPress')
           
@@ -217,6 +229,7 @@ const Route:FC = () => {
       (e) => {
         setMarkerB({ latitude: e.nativeEvent.coordinate.latitude,
           longitude: e.nativeEvent.coordinate.longitude})
+          //console.log(e.nativeEvent)
           setShowMarker(true)
           setChargerPressed(false)
           setPageState('infoState')
@@ -257,7 +270,7 @@ const Route:FC = () => {
           //   '#7F0000',
           //   '#7F0000'
           // ]}
-          strokeWidth={6}
+          strokeWidth={5}
         />
       }
       {markerB!=='' && showMarker && !chargerPressed &&
@@ -382,7 +395,7 @@ const Route:FC = () => {
         >
           { pageState==='infoState' &&
             <Button
-            title={'Destinations'}
+            title={'Directions'}
             onPress={() => {
               if(pageState==='infoState'){
               setPageState('routeState')
