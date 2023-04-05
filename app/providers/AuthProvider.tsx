@@ -31,11 +31,16 @@ export const AuthProvider: FC<Props> =  ({children})  => {
         try{
             const {user} = await register(email, password)
             
-
+            //Create new user
             await firestore().collection('users').add({
                 _id: user.uid,
                 displayName: 'No name',
             })
+            //Create new predictedSoC so that the first time subsriber would see the doc
+            await firestore().collection('predictedSoC').doc(user.uid).set({
+                _id: user.uid,
+            }, { merge: true })
+            
         }catch (error:any) {
             Alert.alert('Error reg:', error.message)
         } finally {

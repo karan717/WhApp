@@ -1,4 +1,4 @@
-import { View, TextInput, StyleSheet, TouchableHighlight, Text, AccessibilityInfo } from 'react-native'
+import { View, TextInput, StyleSheet, TouchableHighlight, Text, AccessibilityInfo, Pressable, TouchableOpacity } from 'react-native'
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MapView, { Callout, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -20,6 +20,8 @@ import Button from '../../ui/Button';
 import { useRouteInfo } from '../../../hooks/useRouteInfo';
 import BottomSheet from "@gorhom/bottom-sheet"
 
+import WorkingItems from './WorkingItems';
+
 interface Marker {
   latitude: number
   longitude: number
@@ -32,9 +34,16 @@ interface Marker {
 
 
 const Route:FC = () => {
-  const [chargerPressed,setChargerPressed] = useState<boolean>(false)
-  const [showMarker,setShowMarker] = useState<boolean>(false)
+  //General Hooks
+  const [chargerPressed,setChargerPressed] = useState<boolean>(false);
+  const [showMarker,setShowMarker] = useState<boolean>(false);
   const [markerBRef,setMarkerBRef] = useState<any>('');
+  const [chargerDetails, setChargerDetails] = useState<any>();
+  const [placeDetails, setPlaceDetails] = useState<any>();
+  const [detailState, setDetailState] = useState<string>('Hide'); //Dropped Pin, Place, Charger
+  const [showPolyline, setShowPolyline] = useState<boolean>(false);
+  const googlePlaceAutoCompleteRef = useRef<any>(null)
+  //Custom hooks
   const {profile} = useProfile()
   const {path,setPath} = usePath();
   const {elevation,setElevation} = useElevation();
@@ -44,16 +53,17 @@ const Route:FC = () => {
   const {distance,duration,finalSoC,setDistance,setDuration,setFinalSoC} = useRouteInfo();
   const {isLoading, isSuccess,uploadPath} = useUploadPath()
   
-  //it has 3 states:
+  //This Route page has 3 states:
   //default, infoState: after marker or place pressed, routeState: after pressing directions, show the route
   const [pageState,setPageState] = useState<string>('default')
-  // ref
+  
+  //BottomSheet hooks and functions
+  // ref for Bottom Sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
+  // variables for points of snap of Bottom Sheet
+  const snapPoints = useMemo(() => ['15%', '25%','60%'], []);
 
-  // variables for points of snap
-  const snapPoints = useMemo(() => ['15%', '25%'], []);
-
-  // callbacks
+  // callbacks for Bottom Sheet
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
@@ -63,6 +73,40 @@ const Route:FC = () => {
   const handleOpenLong = () => bottomSheetRef.current!==null && bottomSheetRef.current.snapToIndex(1)
   const handleOpenShort = () => bottomSheetRef.current!==null && bottomSheetRef.current.snapToIndex(0)
 
+  //Get details about the chosen charger from the Database
+  const getChargerDetails = async (chargerID: string) => {
+    firestore()
+    .collection('chargers_details')
+    .doc(chargerID)
+    .get()
+    .then(documentSnapshot => {
+      console.log('Details exists: ', documentSnapshot.exists);
+
+      if (documentSnapshot.exists) {
+        console.log('Charger details: ', documentSnapshot.data());
+        setDetailState('Charger')
+        setChargerDetails(documentSnapshot.data())
+      }
+    });
+
+  }
+  const getPlaceDetails = async (placeID: string) => {
+    var config = {
+      method: 'get',
+      url: `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeID}&fields=name%2Cformatted_address%2Copening_hours%2Cformatted_phone_number&key=AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64`,
+      headers: { }
+    };
+    
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+      setDetailState('Place')
+      setPlaceDetails(response.data.result)
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
 
   const getElevation = async (args: any) => {
     // Coordinates of locations to String like: lat%2Clong%7Clat%2Clong%7C...
@@ -142,6 +186,7 @@ const Route:FC = () => {
         //setFinalSoC(documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC)
         documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC!==undefined && setFinalSoC(Number((documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC).toFixed(1)))
       });
+      
       setCurrentLocation({
         latitude:35.7741349,
         longitude:-78.6776105 
@@ -208,20 +253,24 @@ const Route:FC = () => {
               setShowMarker(false)
               setPageState('default')
               handleClose()
+              setDetailState('Hide')
 
             }else{
               setShowMarker(true)
               setPageState('infoState')
               handleOpenLong()
+              setDetailState('Dropped Pin')
             }
             if(chargerPressed){
               setChargerPressed(false)
               setShowMarker(false)
               setPageState('default')
               handleClose()
+              setDetailState('Hide')
 
             }
           }
+          setShowPolyline(false)
           console.log('OnPress')
           
     }}
@@ -234,6 +283,7 @@ const Route:FC = () => {
           setChargerPressed(false)
           setPageState('infoState')
           handleOpenLong()
+          getPlaceDetails(e.nativeEvent.placeId)
       }
     }
      >
@@ -253,11 +303,12 @@ const Route:FC = () => {
             if(markerBRef!==''&&markerBRef!==null){
               markerBRef.showCallout()
             }
+            setShowPolyline(true)
           
           }}
         />
       }
-      {path!=='' && pageState==='routeState' && 
+      {path!=='' && pageState==='routeState' && showPolyline &&
         	<Polyline
           coordinates={path}
           strokeColor="#111111" // fallback for when `strokeColors` is not supported by the map-provider
@@ -305,14 +356,14 @@ const Route:FC = () => {
       {chargers!=='' && 
       chargers.map((item:any) =>(
         <Marker 
-          title={item.data.name}
-          description={''}
+          title={''}
+          description={'Charger'}
           key={item.key}
           coordinate={{
             latitude:parseFloat(item.data.location.lat),
             longitude:parseFloat(item.data.location.lng)
           }}
-          pinColor={item.data.state==='1'?'#00FF00':'#FF0000'}
+          pinColor={item.data.state==='1'?'#299617':'#FF0000'}
           onPress={(e)=>{        
             setMarkerB({ latitude: e.nativeEvent.coordinate.latitude,
             longitude: e.nativeEvent.coordinate.longitude})
@@ -322,12 +373,13 @@ const Route:FC = () => {
             setPageState('infoState')
             handleOpenLong()
             console.log('onPressCharger')
+            getChargerDetails(item.data._id)
           }}
             
         >
-        <Entypo name={'power-plug'} 
-            color={item.data.state==='1'?'#00FF00':'#FF0000'}
-            size={30}
+        <Entypo name={'battery'} 
+            color={item.data.state==='1'?'#1260CC':'#FF0000'}
+            size={40}
         />
           
 {/*           
@@ -347,6 +399,24 @@ const Route:FC = () => {
      <View style={{ position: 'absolute', top: '7%', width: '95%' }}>
 
         <GooglePlacesAutocomplete
+          textInputProps={{
+            placeholderTextColor: '#777777',
+            returnKeyType: "search",
+            clearButtonMode: 'never'
+          }}
+
+          styles={{
+            textInput: {
+              height: 45,
+              color: '#222222',
+              fontSize: 17,
+            },
+            predefinedPlacesDescription: {
+              color: '#1faadb',
+            },
+          }}
+
+          ref={googlePlaceAutoCompleteRef}
           placeholder='Search'
           fetchDetails={true} //To get the details
           onPress={(data, details = null) => {
@@ -357,8 +427,13 @@ const Route:FC = () => {
               longitude: details?.geometry.location.lng,
               latitudeDelta: 0.0922,
               longitudeDelta: 0.0421,})
-              if(details!=undefined)
+
+              if(details!=undefined){
               setMarkerB({latitude:details.geometry.location.lat,longitude:details.geometry.location.lng})
+              console.log(details)
+              setDetailState('Place')
+              setPlaceDetails(details)
+              }
               setShowMarker(true)
               setChargerPressed(false)
               setPageState('infoState')
@@ -369,6 +444,14 @@ const Route:FC = () => {
             language: 'en',
             components: 'country:us',
           }}
+          renderRightButton={()=><TouchableOpacity 
+          onPress={()=>googlePlaceAutoCompleteRef.current!==null && googlePlaceAutoCompleteRef.current.clear()}
+          style={styles.containerClearButton}>
+            <Entypo name={'erase'} 
+            color={'#777777'}
+            size={25}
+            />
+          </TouchableOpacity>}
         />
         
       </View>
@@ -386,6 +469,7 @@ const Route:FC = () => {
       { profile._id!==undefined && //This line will remove errors with snapPoints being undefined
                                   // At first render, all states are null or undefined until they initialize,  we should wait for states,
                                   // for example profile._id is one of the state that will initialize at first
+                                  //Address and cost
         <BottomSheet
           ref={bottomSheetRef}
           index={-1}
@@ -394,17 +478,120 @@ const Route:FC = () => {
           enablePanDownToClose={true}
         >
           { pageState==='infoState' &&
-            <Button
-            title={'Directions'}
-            onPress={() => {
-              if(pageState==='infoState'){
-              setPageState('routeState')
-              handleOpenShort()
-              }else{
-                setPageState('infoState')
+            <View style={styles.detailsContainer}>
+              {detailState==='Dropped Pin' &&
+              <>
+                <Text style={styles.nameText}>
+                  {'Dropped Pin'}
+                </Text>
+                <Text style={styles.statusText}>
+                  {markerB.latitude+","+markerB.longitude}
+                </Text>
+              </>
               }
-            } } 
-            />  
+              {detailState==='Charger' && chargerDetails!==undefined && 
+              <>
+                <Text style={styles.nameText}>
+                  {chargerDetails.name!==undefined?chargerDetails.name:'No Charger Name'}
+                </Text>
+
+                {chargerDetails.opening_hours!==undefined &&
+                <View className='flex-row'>
+                  <Text style={{color: `${chargerDetails.opening_hours.open_now?'#299617':'#FF0000'}`, fontSize:16}}>
+                  {chargerDetails.opening_hours.open_now?'Open':'Closed'}
+                  </Text>
+                </View>
+                }
+
+                <View className='flex-row'>
+                  <Text style={styles.statusText}>
+                    {'Charger: '}
+                  </Text>
+                  <Entypo name={'battery'} 
+                      color={chargerDetails.state==='1'?'#299617':'#FF0000'}
+                      size={16}
+                  />
+                  
+                  <Text style={{color: `${chargerDetails.state==='1'?'#299617':'#FF0000'}`, fontSize:16}}>
+                  {chargerDetails.state!==undefined && chargerDetails.state==='1'?' Available':' Busy'}
+                  </Text>
+                </View>
+              </>
+              }
+
+              {detailState==='Place' && placeDetails!==undefined && 
+              <>
+                <Text style={styles.nameText}>
+                  {placeDetails.name!==undefined?placeDetails.name:'No Place Name'}
+                </Text>
+                {placeDetails.opening_hours!==undefined &&
+                <View className='flex-row'>
+                  <Text style={{color: `${placeDetails.opening_hours.open_now?'#299617':'#FF0000'}`}}>
+                  {placeDetails.opening_hours.open_now?'Open':'Closed'}
+                  </Text>
+                </View>
+                }
+              </>
+              }
+              
+              <View style={styles.buttonContainer}>
+                <Button
+                title={'Directions'}
+                onPress={() => {
+                  if(pageState==='infoState'){
+                  setPageState('routeState')
+                  handleOpenShort()
+                  }else{
+                    setPageState('infoState')
+                  }
+                } } 
+                />  
+              </View>
+              {detailState==='Charger' && chargerDetails!==undefined && chargerDetails.opening_hours!==undefined && 
+              <>
+                <Text style={styles.workingHoursText}>
+                  {'Address:'+' '+chargerDetails.formatted_address}
+                </Text>
+              </>
+              }
+
+              {detailState==='Charger' && chargerDetails!==undefined && chargerDetails.opening_hours!==undefined && 
+              <>
+                <Text style={styles.workingHoursText}>
+                  {'Working Hours:'}
+                </Text>
+                <View style={styles.workingHourContainer}>
+                    {chargerDetails.opening_hours.weekday_text.map((days:any)=>{
+                      const inpArray = days.split("y");
+                      return <WorkingItems key={inpArray[0]+'y'} input={inpArray}/>
+                    })}
+                </View>
+              </>
+              }
+
+            {detailState==='Place' && placeDetails!==undefined && placeDetails.opening_hours!==undefined && 
+              <>
+              <Text style={styles.workingHoursText}>
+                {'Address:'+' '+placeDetails.formatted_address}
+              </Text>
+              </>
+              }
+
+              {detailState==='Place' && placeDetails!==undefined && placeDetails.opening_hours!==undefined && 
+              <>
+                <Text style={styles.workingHoursText}>
+                  {'Working Hours:'}
+                </Text>
+                <View style={styles.workingHourContainer}>
+                    {placeDetails.opening_hours.weekday_text.map((days:any)=>{
+                      const inpArray = days.split("y");
+                      return <WorkingItems key={inpArray[0]+'y'} input={inpArray}/>
+                    })}
+                </View>
+              </>
+              }
+
+            </View>
           }
           <Text style={styles.text}>
           {pageState ==='routeState' && `${finalSoC}% battery remains \n ${distance} mi., ${duration} min.`}
@@ -449,6 +636,42 @@ const styles = StyleSheet.create({
     margin: 3,
     paddingBottom:80,
     color: "#1F2937",
+  },
+  detailsContainer: {
+    paddingHorizontal:15,
+  },
+  buttonContainer: {
+    paddingHorizontal:70,
+  },
+  nameText: {
+    fontSize: 22,
+    fontWeight:"400",
+  },
+  workingHoursText: {
+    fontSize: 17,
+    fontWeight:"400",
+    marginBottom:10,
+  },
+  workingHourContainer:{
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start' 
+  },
+  workingHourItem1:{
+    width: '50%',
+    paddingLeft:30,
+  },
+  workingHourItem2:{
+    width: '50%',
+  },
+  statusText:{
+    fontSize: 16,
+  },
+  containerClearButton:{
+    ...StyleSheet.absoluteFillObject,
+    alignItems:'flex-end',
+    marginTop:10,
+    marginRight:8,
   }
  });
 
