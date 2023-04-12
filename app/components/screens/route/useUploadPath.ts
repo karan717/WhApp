@@ -2,6 +2,7 @@ import { Alert } from 'react-native'
 import React, { useState } from 'react'
 import firestore from '@react-native-firebase/firestore'
 import { useAuth } from '../../../hooks/useAuth'
+import { useBLE } from '../../../hooks/useBLE'
 
 //Important link on Firestore usage for React Native
 //https://rnfirebase.io/firestore/usage
@@ -10,6 +11,7 @@ export const useUploadPath = () => {
     const {user} = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const {receivedData} = useBLE();
 
     const uploadPath = async ( elevations:any,docId:string) => {
         setIsLoading(true)
@@ -22,7 +24,7 @@ export const useUploadPath = () => {
             await firestore().collection('paths').doc(user.uid).set({
                 _id: user.uid,
                 points:elevations,
-                currentSoC: 76
+                currentSoC: Number(receivedData)>0?Number(receivedData):80
 
             }, { merge: true })
 

@@ -50,15 +50,16 @@ const Home:FC = (props) => {
 
 
   return (<>
-    <Layout>
-
-      <Header/>
+    
+    <Layout isScrollView={true}>
+    <Header/>
+      
       
       <View style={styles.container}>
         {timesToSearch>1&&Number(receivedData)===0&&<Loader/>}
         {timesToSearch<=1&&Number(receivedData)===0&&
         <>
-          <Text>Couldn't find Wheelchair</Text>
+          <Text>Couldn't find your wheelchair</Text>
           <TouchableHighlight 
             onPress={async ()=> {
               console.log(peripherals)
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     paddingVertical: 20,
-    marginTop: 100,
+    marginTop: 20,
   },
   textBattery: {
     fontSize: 25,
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     textAlign: 'center',
     margin: 10,
-    paddingBottom:80,
+    paddingBottom:30,
     color: "#1F2937",
   },
 });

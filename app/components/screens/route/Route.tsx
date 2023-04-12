@@ -1,4 +1,4 @@
-import { View, TextInput, StyleSheet, TouchableHighlight, Text, AccessibilityInfo, Pressable, TouchableOpacity } from 'react-native'
+import { View, TextInput, StyleSheet, TouchableHighlight, Text, AccessibilityInfo, Pressable, TouchableOpacity, ScrollView } from 'react-native'
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MapView, { Callout, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -21,6 +21,7 @@ import { useRouteInfo } from '../../../hooks/useRouteInfo';
 import BottomSheet from "@gorhom/bottom-sheet"
 
 import WorkingItems from './WorkingItems';
+import ScrollLayout from './ScrollLayout';
 
 interface Marker {
   latitude: number
@@ -299,7 +300,7 @@ const Route:FC = () => {
           onReady={(args) =>{ getElevation(args); setPath(args.coordinates);
             setDistance(Number((args.distance*0.621371).toFixed(1))) // km to mile
             setDuration(Number((args.duration).toFixed(1)))
-            setFinalSoC(47)
+            //setFinalSoC(47)
             if(markerBRef!==''&&markerBRef!==null){
               markerBRef.showCallout()
             }
@@ -402,9 +403,10 @@ const Route:FC = () => {
           textInputProps={{
             placeholderTextColor: '#777777',
             returnKeyType: "search",
-            clearButtonMode: 'never'
+            clearButtonMode: 'never',
+            
           }}
-
+          enablePoweredByContainer={false}
           styles={{
             textInput: {
               height: 45,
@@ -477,6 +479,7 @@ const Route:FC = () => {
           onChange={handleSheetChanges}
           enablePanDownToClose={true}
         >
+          <ScrollLayout isScrollView={true}>
           { pageState==='infoState' &&
             <View style={styles.detailsContainer}>
               {detailState==='Dropped Pin' &&
@@ -547,7 +550,7 @@ const Route:FC = () => {
                 } } 
                 />  
               </View>
-              {detailState==='Charger' && chargerDetails!==undefined && chargerDetails.opening_hours!==undefined && 
+              {detailState==='Charger' && chargerDetails!==undefined && chargerDetails.formatted_address!==undefined && 
               <>
                 <Text style={styles.workingHoursText}>
                   {'Address:'+' '+chargerDetails.formatted_address}
@@ -569,7 +572,7 @@ const Route:FC = () => {
               </>
               }
 
-            {detailState==='Place' && placeDetails!==undefined && placeDetails.opening_hours!==undefined && 
+            {detailState==='Place' && placeDetails!==undefined && placeDetails.formatted_address!==undefined && 
               <>
               <Text style={styles.workingHoursText}>
                 {'Address:'+' '+placeDetails.formatted_address}
@@ -594,9 +597,10 @@ const Route:FC = () => {
             </View>
           }
           <Text style={styles.text}>
-          {pageState ==='routeState' && `${finalSoC}% battery remains \n ${distance} mi., ${duration} min.`}
+          {pageState ==='routeState' && showPolyline && `${finalSoC}% battery remains \n ${distance} mi., ${duration} min.`}
 
           </Text>
+          </ScrollLayout>
         </BottomSheet>
       }
     </View>
@@ -631,7 +635,7 @@ const styles = StyleSheet.create({
     padding:5,
   },
   text: {
-    fontSize: 18,
+    fontSize: 22,
     textAlign: 'center',
     margin: 3,
     paddingBottom:80,
@@ -668,10 +672,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   containerClearButton:{
-    ...StyleSheet.absoluteFillObject,
+    position:'absolute',
+    left:'85%',
     alignItems:'flex-end',
     marginTop:10,
-    marginRight:8,
+    paddingRight:10,
+    width:'15%',
   }
  });
 

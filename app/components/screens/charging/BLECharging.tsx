@@ -73,26 +73,27 @@ const BLECharging= () => {
                 underlayColor="#FBBF24"
                 className={`bg-yellow-300 text-gray-800 rounded-xl my-4 py-2 m-3 w-5/12`}>
                     <Text className='text-gray-800 text-center text-lg'>
-                        Start Charging
+                        Update SoC
                     </Text>
                 </TouchableHighlight>
                 <TouchableHighlight 
-                onPress={()=>{}} 
+                onPress={()=>{let item = whPeripheral; item.connected=true; togglePeripheralConnection(item)}} 
                 underlayColor="#FBBF24"
                 className={`bg-yellow-300 text-gray-800 rounded-xl my-4 py-2 m-3 w-5/12`}>
                     <Text className='text-gray-800 text-center text-lg'>
-                        Stop Charging
+                        Disconnect Chair
                     </Text>
                 </TouchableHighlight>
               </View>
               }
-
+              { false &&
               <View style={styles.body}>
                 <ScrollView>
                   <Text style={styles.peripheralName}>Received Data:</Text>
                   <Text style={styles.peripheralName}>{receivedData}</Text>
                 </ScrollView>
               </View>
+              }
   
               {(Array.from(peripherals.values()).length == 0) &&
                 <View style={{flex:1, margin: 20}}>
@@ -101,22 +102,26 @@ const BLECharging= () => {
               }
 
               {/* Work on the logic of this part */}
-            <Text style={styles.textBattery}>Chargers</Text>
-            {((new Map([...peripherals].filter(([k, v])=>k!=='LOL')))).size!==0 ?
+              <Text style={styles.textBattery}> Wheelchair</Text>
+              {whPeripheral!==undefined ?
               <FlatList
-              data={whPeripheral!==undefined ? Array.from((new Map([...peripherals].filter(([k, v])=>k!==whPeripheral.id))).values()):Array.from(peripherals.values())}
+              data={whPeripheral!==undefined ? Array.from((new Map([...peripherals].filter(([k, v])=>k===whPeripheral.id))).values()):Array.from(new Map())}
               contentContainerStyle={{rowGap: 12, padding:10}}
               renderItem={renderItem}
               keyExtractor={item => item.id}
-              /> : <Text style={styles.textBattery2}>Chargers are not found nearby</Text>
-            }
-            <Text style={styles.textBattery}> Wheelchair</Text>
-            <FlatList
-            data={whPeripheral!==undefined ? Array.from((new Map([...peripherals].filter(([k, v])=>k===whPeripheral.id))).values()):Array.from(new Map())}
-            contentContainerStyle={{rowGap: 12, padding:10}}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            />
+              /> : <Text style={styles.textBattery2}>Couldn't find your wheelchair</Text>
+
+              }
+              <Text style={styles.textBattery}>Chargers</Text>
+              {((new Map([...peripherals].filter(([k, v])=>k!==(whPeripheral!==undefined?whPeripheral.id:'LOL'))))).size!==0 ?
+                <FlatList
+                data={whPeripheral!==undefined ? Array.from((new Map([...peripherals].filter(([k, v])=>k!==whPeripheral.id))).values()):Array.from(peripherals.values())}
+                contentContainerStyle={{rowGap: 12, padding:10}}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                /> : <Text style={styles.textBattery2}>Chargers are not found nearby</Text>
+              }
+
             
                
         </SafeAreaView>

@@ -50,7 +50,7 @@ const Navigation:FC = () => {
             </>) : (<Stack.Screen name='Auth' component={Auth} />)}
         </Stack.Navigator>
     </NavigationContainer>
-    <Footer navigate={ref.navigate} currentRoute={name}/>
+    {user && <Footer navigate={ref.navigate} currentRoute={name}/>}
     </>
   )
 }

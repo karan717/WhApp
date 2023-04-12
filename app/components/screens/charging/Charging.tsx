@@ -10,7 +10,7 @@ const Charging:FC = () => {
   return (
     <Layout isScrollView={false}>
     
-    <Text className='text-2xl text-center pt-10'>Charging</Text>
+    <Text className='text-2xl text-center pt-10'>Scan for devices</Text>
     <BLECharging></BLECharging>
     
     </Layout>
