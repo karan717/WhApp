@@ -14,14 +14,14 @@ import Loader from '../../ui/Loader';
 
 const Home:FC = (props) => {
   const {navigate} = useNavigation()
-  const {isScanning,peripherals,whPeripheral,isConnected,receivedData,sendDataRPi,startScan,connectPeripheral} = useBLE();
+  const {isScanning,peripherals,whPeripheral,receivedBatteryLevel,sendDataRPi,startScan,connectPeripheral} = useBLE();
   const [timesToSearch,setTimesToSearch] = useState(5)
   useEffect(() => {
     const interval = setInterval(async() => {
       console.log('Home UseEffect')
       let runScan = whPeripheral!==undefined //runScan check if whPeripheral found
       console.log(!runScan)
-      console.log(whPeripheral===undefined||Number(receivedData)===0)
+      console.log(whPeripheral===undefined||Number(receivedBatteryLevel)===0)
       if(!runScan){
         await startScan()
         if(whPeripheral!==undefined){
@@ -30,10 +30,10 @@ const Home:FC = (props) => {
       }else{
         let whInstance = peripherals.get(whPeripheral.id);
         if(whInstance.connected){
-          sendDataRPi('Start Charging',whPeripheral);
+          sendDataRPi('Battery Level',whPeripheral);
         }else{
           await connectPeripheral(whPeripheral)
-          sendDataRPi('Start Charging',whPeripheral);
+          //sendDataRPi('Battery Level',whPeripheral);
         }
         
       }
@@ -41,12 +41,13 @@ const Home:FC = (props) => {
       if(timesToSearch>0){
       setTimesToSearch(timesToSearch-1)
       }
-    }, (timesToSearch>1&&(whPeripheral===undefined||Number(receivedData)===0))?2000:10000);
+    }, (timesToSearch>1&&(whPeripheral===undefined||Number(receivedBatteryLevel)===0))?2000:10000);
     return () => {
       clearInterval(interval);
       console.log('Unmount Home')
+      //console.log(peripherals)
     };
-  }, [whPeripheral,receivedData,isScanning,timesToSearch]);
+  }, [whPeripheral,receivedBatteryLevel,isScanning,timesToSearch]);
 
 
   return (<>
@@ -56,8 +57,8 @@ const Home:FC = (props) => {
       
       
       <View style={styles.container}>
-        {timesToSearch>1&&Number(receivedData)===0&&<Loader/>}
-        {timesToSearch<=1&&Number(receivedData)===0&&
+        {timesToSearch>1&&Number(receivedBatteryLevel)===0&&<Loader/>}
+        {timesToSearch<=1&&Number(receivedBatteryLevel)===0&&
         <>
           <Text>Couldn't find your wheelchair</Text>
           <TouchableHighlight 
@@ -70,10 +71,10 @@ const Home:FC = (props) => {
               {
                 let whInstance = peripherals.get(whPeripheral.id);
                 if(whInstance.connected){
-                  sendDataRPi('Start Charging',whPeripheral);
+                  sendDataRPi('Battery Level',whPeripheral);
                 }else{
                   await connectPeripheral(whPeripheral)
-                  sendDataRPi('Start Charging',whPeripheral);
+                  //sendDataRPi('Battery Level',whPeripheral);
                 }
               }
               }} 
@@ -85,22 +86,22 @@ const Home:FC = (props) => {
           </TouchableHighlight>
         </>}
 
-        {Number(receivedData)>0&& <>        
+        {Number(receivedBatteryLevel)>0&& <>        
         <Text style={styles.textBattery}>
           Battery Level
         </Text>
-        <Progress.Bar progress={Number(receivedData)/100} width={200} height={90} color='#5BC236'/>
+        <Progress.Bar progress={Number(receivedBatteryLevel)/100} width={200} height={90} color='#5BC236'/>
         <Text style={styles.text}>
-          {Number(receivedData)+'%'}
+          {Number(receivedBatteryLevel)+'%'}
         </Text>
         </> }
 
         {/* <Text style={styles.textBattery}>
           Battery Level
         </Text>
-        <Progress.Bar progress={Number(receivedData)/100} width={200} height={90} color='#5BC236'/>
+        <Progress.Bar progress={Number(receivedBatteryLevel)/100} width={200} height={90} color='#5BC236'/>
         <Text style={styles.text}>
-          {Number(receivedData)+'%'}
+          {Number(receivedBatteryLevel)+'%'}
         </Text> */}
 
 

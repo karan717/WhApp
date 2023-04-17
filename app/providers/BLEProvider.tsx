@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo, FC, createContext} from 'react';
+import React, {useState, useEffect, useMemo, FC, createContext, useRef} from 'react';
 import {
   NativeModules,
   NativeEventEmitter,
@@ -24,6 +24,7 @@ interface BLEContext {
     peripherals: Map<any,any>
     whPeripheral: any | string
     receivedData: string
+    receivedBatteryLevel: string
     isConnected: boolean
     startScan: ()=> void
     togglePeripheralConnection: (peripheral: any) => Promise<void>
@@ -47,19 +48,34 @@ export const BLEProvider: FC<Props> =  ({children})  => {
   const [isScanning, setIsScanning] = useState(false); //Scanning for BLE devices Wheelchair or Chargers
   const [peripherals, setPeripherals] = useState(new Map()); //all peripherals
   const [whPeripheral, setWhPeripheral] = useState<Object | any>() //Wheelchair peripheral only
-  const [receivedData, setReceivedData] = useState(''); //Received Data
+  const [receivedData, setReceivedData] = useState(''); //Received Data from chargers
+  const [receivedBatteryLevel, setReceivedBatteryLevel] = useState(''); //Received Battery Level from Wheelchair
   const [isConnected, setIsConnected] = useState(false);
- const {WhID} = useProfile()
+  const peripheralsRef = useRef<Map<any,any>>(peripherals); //For Discover Peripherals Listener to access the latest state rather than the first render state
+  const _setPeripherals = (newPeripherals:any) =>{
+    peripheralsRef.current = newPeripherals;
+    setPeripherals(newPeripherals)
+  }
+  const whPeripheralRef = useRef<any>(whPeripheral);
+  const _setWhPeripheral = (newWhPeripheral:any) =>{
+    whPeripheralRef.current = newWhPeripheral;
+    setWhPeripheral(newWhPeripheral);
+  }
+  const {WhID} = useProfile()
   //console.log({peripherals: peripherals.entries()});
 
   const updatePeripherals = (key:any, value:any) => {
-    setPeripherals(new Map(peripherals.set(key, value)));
+    _setPeripherals(new Map(peripherals.set(key, value)));
   };
 
   const startScan = async () => {
     if (!isScanning) {
       try {
         console.log('Scanning...');
+        //console.log('beofre scanning',peripherals.values().next().value)
+        //Clean all non connected chargers and wheelchair first... and then do scanning??
+        //Clean the whPeripheral too if it is not connected...?
+        //This will help to remove the old chargers that are not nearby anymore
         setIsScanning(true);
         await BleManager.scan(SERVICE_UUIDS, SECONDS_TO_SCAN_FOR, ALLOW_DUPLICATES);
       } catch (error) {
@@ -71,7 +87,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
   const handleStopScan = () => {
     setIsScanning(false);
     console.log('Scan is stopped');
-    console.log('Peripherals found',peripherals)
+    //console.log('Peripherals found',peripherals)
   };
 
   const handleDisconnectedPeripheral = (data:any) => {
@@ -92,31 +108,89 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       data.value,
     );
     let outData = Utf8ArrayToStr(data.value)
-    setReceivedData(outData) //See how to identify that we received data from Wh or Ch
+    let whPeripheral = whPeripheralRef.current; // so that listener accesses the latest whPeripheral object
+    let peripherals = peripheralsRef.current; // so that listener accese the latest peripherals map
 
+    //console.log(whPeripheral!==undefined && data.peripheral===whPeripheral.id)
+    //differentiate between message from wheelchair and charger
+    console.log('received msg',outData)
+    if(whPeripheral!==undefined && data.peripheral==whPeripheral.id){
+      setReceivedBatteryLevel(outData)
+    }else{
+      setReceivedData(outData) //message from charger
+      //charger is busy, disconnected
+      if(outData === 'Charger Busy'){
+        Alert.alert('Charger is currently unavailable, come later')
+        togglePeripheralConnection(peripherals.get(data.peripheral))
+      }
+      //Alert.alert(outData)
+      //plug in your wheelchair
+      if(outData === 'Await Battery'){
+        Alert.alert('Plug In your unit, charger is awaiting battery connection')
+      }
+      //
+      if(outData === 'In Progress'){
+        Alert.alert('Charging in Progress')
+      }
+      //battery is faulty, unplug
+      if(outData === 'Faulty Battery'){
+        Alert.alert('Unplug your unit, battery is faulty')
+      }
+      //Plugged Faulty Charger
+      if(outData === 'Plugged Fault'){
+        Alert.alert('Unplug your unit, charger is faulty')
+      }
+      //Unplugged Faulty Charger
+      if(outData === 'Faulty Charger'){
+        Alert.alert('Do not plug in, charger is faulty')
+        togglePeripheralConnection(peripherals.get(data.peripheral))
+      }
+      //disconnected 
+      if(outData === 'Disconnect'){
+        Alert.alert('Disconnected from the charger')
+        togglePeripheralConnection(peripherals.get(data.peripheral))
+      }
+      //check BLE connection
+      // if(outData === 'Check BLE'){
+      //   sendDataRPi('BLEconn',peripherals.get(data.peripheral))
+      // }
+
+    }
   };
+  
 
   const handleDiscoverPeripheral = (peripheral:any) => {
     if(peripheral.advertising.localName){ //if peripheral has local name then check
-      peripheral.advertising.localName.substring(0,4)=='ACL-' && console.log('Got ble peripheral', peripheral);
-      peripheral.advertising.localName.substring(0,7)=='ACL-Wh-' && updatePeripherals(peripheral.id, peripheral);
-      peripheral.advertising.localName.substring(0,7)=='ACL-Wh-' && setWhPeripheral(peripheral);
-      peripheral.advertising.localName.substring(0,7)=='ACL-Wh-' && console.log('Got Wh peripheral');
-      peripheral.advertising.localName.substring(0,7)=='ACL-Ch-' && updatePeripherals(peripheral.id, peripheral);
+      //To access the latest peripherals state, the reference hook is required
+      //https://medium.com/geographit/accessing-react-state-in-event-listeners-with-usestate-and-useref-hooks-8cceee73c559
+      let peripherals = peripheralsRef.current;
+      
 
-      //console.log(typeof peripheral)
-    }
-    else{
+
+      if(peripheral.advertising.localName.substring(0,7)=='ACL-Ch-'||peripheral.advertising.localName.substring(0,13)=='ACL-Wh-'+WhID){
+        console.log('discovered per',peripherals.get(peripheral.id))
+        console.log(WhID)
+        if(peripherals.get(peripheral.id)===undefined || !peripherals.get(peripheral.id).connected){
+          console.log('discovered inside',peripheral)
+          peripheral.advertising.localName.substring(0,7)=='ACL-Ch-' && updatePeripherals(peripheral.id, {...peripheral,...{connecting: false, connected: false}});
+          peripheral.advertising.localName.substring(0,7)=='ACL-Wh-' && updatePeripherals(peripheral.id, {...peripheral,...{connecting: false, connected: false}});
+          peripheral.advertising.localName.substring(0,7)=='ACL-Wh-' && _setWhPeripheral(peripheral);
+
+        }
+      }
 
     }
   };
 
   const togglePeripheralConnection = async (peripheral:any) => {
     if (peripheral && peripheral.connected) {
+      await sendDataRPi('Disconnecting',peripheral); //send message to charger
       await BleManager.disconnect(peripheral.id);
       setIsConnected(false)
+      console.log('toggle disconnect')
     } else {
       connectPeripheral(peripheral);
+      console.log('toggle connect')
     }
   };
 
@@ -134,9 +208,28 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         // Before startNotification you need to call retrieveServices
         await BleManager.retrieveServices(peripheralUUID);
         // To enable BleManagerDidUpdateValueForCharacteristic listener
-        await BleManager.startNotification(peripheralUUID, service, characteristic);
+        await BleManager.startNotification(peripheralUUID, service, characteristic).then(()=>{
+          //If peripheral is connecting to the charger (Not Wheelchair)
+          if(whPeripheral===undefined || peripheral.id!==whPeripheral.id){
+            sendDataRPi(`${WhID}:9:29:22:@`,peripheral)
+          }
+          //If peripheral is connecting to Wheelchair, immediately request for Battery Level
+          if(whPeripheral!==undefined && peripheral.id===whPeripheral.id){
+            sendDataRPi(`Battery Level`,peripheral)
+          }
+        });
         markPeripheral({connecting: false, connected: true});
         setIsConnected(true)
+        console.log('Peripheral connected')
+        // //If peripheral is connecting to the charger (Not Wheelchair)
+        // if(whPeripheral===undefined || peripheral.id!==whPeripheral.id){
+        //   await sendDataRPi(`${WhID}:9:29:22:@`,peripheral)
+        // }
+        // //If peripheral is connecting to Wheelchair, immediately request for Battery Level
+        // if(whPeripheral!==undefined && peripheral.id===whPeripheral.id){
+        //   await sendDataRPi(`Battery Level`,peripheral)
+        // }
+
       }
       
       console.log('connected');
@@ -146,11 +239,12 @@ export const BLEProvider: FC<Props> =  ({children})  => {
 
     function markPeripheral(props:any) {
       updatePeripherals(peripheral.id, {...peripheral, ...props});
+      
     }
   };
 
   async function sendDataRPi(data:string,peripheral:any) {
-    console.log(data)
+    console.log('data to send',data)
     const peripheralUUID =peripheral.id
     const service = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
     const characteristic = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E" //writing char UUID
@@ -164,9 +258,10 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       })
       .catch((error) => {
         // Failure code
-        console.log(error);
+        console.log('error during sending?',error);
         setIsConnected(false);
-        setReceivedData('')
+        //setReceivedData('')
+        setReceivedBatteryLevel(''); // if wheelchair turned off suddenly, then do not show the battery level anymore
         markPeripheral({connecting: false, connected: false});
       });
 
@@ -180,6 +275,13 @@ export const BLEProvider: FC<Props> =  ({children})  => {
 
   useEffect(() => {
     handleAndroidPermissionCheck();
+    if (Platform.OS === 'android' && Platform.Version >= 23){
+      //turn on the bluetooth if off
+      BleManager.enableBluetooth().then(() => {
+        console.log('Bluetooth is turned on!');
+      });
+    }
+
     BleManager.start({showAlert: false});
 
     const listeners = [
@@ -218,7 +320,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         listener.remove();
       }
     };
-  }, []);
+  }, [WhID]);
 
   const handleAndroidPermissionCheck = () => {
     if (Platform.OS === 'android' && Platform.Version >= 23) {
@@ -260,8 +362,8 @@ export const BLEProvider: FC<Props> =  ({children})  => {
     }
   };
   const value = useMemo(() => ({ isScanning, peripherals,whPeripheral,
-    receivedData,isConnected, startScan,togglePeripheralConnection,connectPeripheral,sendDataRPi
-}), [isScanning,peripherals,receivedData,isConnected,whPeripheral])
+    receivedData,receivedBatteryLevel,isConnected, startScan,togglePeripheralConnection,connectPeripheral,sendDataRPi
+}), [isScanning,peripherals,receivedData,receivedBatteryLevel,isConnected,whPeripheral])
 
 
 

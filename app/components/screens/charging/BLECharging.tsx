@@ -65,11 +65,11 @@ const BLECharging= () => {
                 />            
               </View>
   
-              {
-              isConnected &&
+              {/* {
+              false && isConnected &&
               <View style={styles.buttonStyleContainer}>
                 <TouchableHighlight 
-                onPress={()=>{sendDataRPi('Start Charging',whPeripheral)}} 
+                onPress={()=>{sendDataRPi(`517229:11:29:22:@`,whPeripheral)}} 
                 underlayColor="#FBBF24"
                 className={`bg-yellow-300 text-gray-800 rounded-xl my-4 py-2 m-3 w-5/12`}>
                     <Text className='text-gray-800 text-center text-lg'>
@@ -85,21 +85,21 @@ const BLECharging= () => {
                     </Text>
                 </TouchableHighlight>
               </View>
-              }
-              { false &&
+              } */}
+              {/* { false &&
               <View style={styles.body}>
                 <ScrollView>
                   <Text style={styles.peripheralName}>Received Data:</Text>
                   <Text style={styles.peripheralName}>{receivedData}</Text>
                 </ScrollView>
               </View>
-              }
+              } */}
   
-              {(Array.from(peripherals.values()).length == 0) &&
+              {/* {(Array.from(peripherals.values()).length == 0) &&
                 <View style={{flex:1, margin: 20}}>
                   <Text style={{textAlign: 'center'}}>No peripherals</Text>
                 </View>
-              }
+              } */}
 
               {/* Work on the logic of this part */}
               <Text style={styles.textBattery}> Wheelchair</Text>
@@ -112,6 +112,8 @@ const BLECharging= () => {
               /> : <Text style={styles.textBattery2}>Couldn't find your wheelchair</Text>
 
               }
+
+              {/* Chargers should be sorted by RSSI https://javascript.plainenglish.io/how-to-sort-a-map-in-javascript-es6-59751f06f692   */}
               <Text style={styles.textBattery}>Chargers</Text>
               {((new Map([...peripherals].filter(([k, v])=>k!==(whPeripheral!==undefined?whPeripheral.id:'LOL'))))).size!==0 ?
                 <FlatList

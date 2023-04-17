@@ -11,7 +11,7 @@ export const useUploadPath = () => {
     const {user} = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
-    const {receivedData} = useBLE();
+    const {receivedBatteryLevel} = useBLE();
 
     const uploadPath = async ( elevations:any,docId:string) => {
         setIsLoading(true)
@@ -24,7 +24,7 @@ export const useUploadPath = () => {
             await firestore().collection('paths').doc(user.uid).set({
                 _id: user.uid,
                 points:elevations,
-                currentSoC: Number(receivedData)>0?Number(receivedData):80
+                currentSoC: Number(receivedBatteryLevel)>0?Number(receivedBatteryLevel):80
 
             }, { merge: true })
 
