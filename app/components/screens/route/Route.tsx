@@ -8,6 +8,7 @@ import firestore from '@react-native-firebase/firestore'
 import axios from 'axios'
 
 import Entypo from 'react-native-vector-icons/Entypo'
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 
 //Contexts that are used as a global parameters
 import { useUploadPath } from './useUploadPath';
@@ -22,6 +23,8 @@ import BottomSheet from "@gorhom/bottom-sheet"
 
 import WorkingItems from './WorkingItems';
 import ScrollLayout from './ScrollLayout';
+import DirectionsItems from './DirectionsItems';
+import { useBLE } from '../../../hooks/useBLE';
 
 interface Marker {
   latitude: number
@@ -53,6 +56,7 @@ const Route:FC = () => {
   const {chargers,setChargers} = useCharger();
   const {distance,duration,finalSoC,setDistance,setDuration,setFinalSoC} = useRouteInfo();
   const {isLoading, isSuccess,uploadPath} = useUploadPath()
+  const {receivedBatteryLevel} = useBLE()
   
   //This Route page has 3 states:
   //default, infoState: after marker or place pressed, routeState: after pressing directions, show the route
@@ -62,7 +66,7 @@ const Route:FC = () => {
   // ref for Bottom Sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
   // variables for points of snap of Bottom Sheet
-  const snapPoints = useMemo(() => ['15%', '25%','60%'], []);
+  const snapPoints = useMemo(() => ['18%', '25%','60%'], []);
 
   // callbacks for Bottom Sheet
   const handleSheetChanges = useCallback((index: number) => {
@@ -185,6 +189,7 @@ const Route:FC = () => {
       .onSnapshot(documentSnapshot => {
         console.log('User data: ', documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC);
         //setFinalSoC(documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC)
+        //Check if path.length === documentSnapshot.data()?.points.length, so that we know that the data is updated
         documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC!==undefined && setFinalSoC(Number((documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC).toFixed(1)))
       });
       
@@ -193,13 +198,16 @@ const Route:FC = () => {
         longitude:-78.6776105 
       })
       //console.log('Chargers are',chargers)
+
+      //Check if chargers==='', and then do fetching, after subscribe to chargers to update if any changes happen
+      //Should we have different charger sets for different counties? or how?
       fetchChargers()
       //chargers.forEach((element:any)=>console.log(element.location))
       
       if(chargers===''){
         fetchChargers().catch(console.error);
         //console.log(chargers)
-      }
+      } 
       if(markerBRef!==''&&markerBRef!==null){
         markerBRef.hideCallout()
         markerBRef.showCallout()
@@ -300,7 +308,7 @@ const Route:FC = () => {
           onReady={(args) =>{ getElevation(args); setPath(args.coordinates);
             setDistance(Number((args.distance*0.621371).toFixed(1))) // km to mile
             setDuration(Number((args.duration).toFixed(1)))
-            //setFinalSoC(47)
+            //setFinalSoC('Loading...')
             if(markerBRef!==''&&markerBRef!==null){
               markerBRef.showCallout()
             }
@@ -378,11 +386,22 @@ const Route:FC = () => {
           }}
             
         >
-        <Entypo name={'battery'} 
-            color={item.data.state==='1'?'#1260CC':'#FF0000'}
-            size={40}
+        {/*Genius idea of positioning two icons so that first black one is on bottom of the colored icon
+        making it look more outlined and visible*/}
+         <FontAwesome5 
+          name={'charging-station'}
+          color={'#000000'}
+          style={{ position: 'absolute' }}
+          size={41.5}
         />
-          
+        <FontAwesome5 
+          name={'charging-station'}
+          color={item.data.state==='1'?'#029F0F':'#F6DE16'}
+          style={{ position: 'absolute' }}
+          //style={{ borderWidth: 1, borderColor: '#000000' }}
+          size={40}
+        />
+          {/*#299617 */}
 {/*           
            <Callout tooltip={true}>
 
@@ -409,9 +428,9 @@ const Route:FC = () => {
           enablePoweredByContainer={false}
           styles={{
             textInput: {
-              height: 45,
+              height: 55,
               color: '#222222',
-              fontSize: 17,
+              fontSize: 22,
             },
             predefinedPlacesDescription: {
               color: '#1faadb',
@@ -495,7 +514,11 @@ const Route:FC = () => {
               {detailState==='Charger' && chargerDetails!==undefined && 
               <>
                 <Text style={styles.nameText}>
+                  {chargerDetails.chargerID!==undefined?'Charger #'+chargerDetails.chargerID:'No Charger Name'}
+                </Text>
+                <Text style={styles.nameText}>
                   {chargerDetails.name!==undefined?chargerDetails.name:'No Charger Name'}
+                  {chargerDetails.located!==undefined?' ('+chargerDetails.located+')':''}
                 </Text>
 
                 {chargerDetails.opening_hours!==undefined &&
@@ -510,13 +533,22 @@ const Route:FC = () => {
                   <Text style={styles.statusText}>
                     {'Charger: '}
                   </Text>
-                  <Entypo name={'battery'} 
-                      color={chargerDetails.state==='1'?'#299617':'#FF0000'}
-                      size={16}
+
+                  <FontAwesome5 
+                    name={'charging-station'}
+                    color={chargerDetails.state==='1'?'#029F0F':'#F6DE16'}
+                    //style={{ position: 'absolute' }}
+                    //style={{ borderWidth: 1, borderColor: '#000000' }}
+                    size={16}
                   />
                   
-                  <Text style={{color: `${chargerDetails.state==='1'?'#299617':'#FF0000'}`, fontSize:16}}>
-                  {chargerDetails.state!==undefined && chargerDetails.state==='1'?' Available':' Busy'}
+                  <Text 
+                  style={{color: `${chargerDetails.state==='1'?'#299617':'#F6DE16'}`, fontSize:16,
+                     fontWeight:'bold',}}
+                     //textShadowColor:'#000000', textShadowOffset:{width: 0.5, height: 0.5},textShadowRadius:1,
+                     
+                     >
+                  {chargerDetails.state!==undefined && chargerDetails.state==='1'?' Available':' Currently in use'}
                   </Text>
                 </View>
               </>
@@ -596,10 +628,16 @@ const Route:FC = () => {
 
             </View>
           }
-          <Text style={styles.text}>
-          {pageState ==='routeState' && showPolyline && `${finalSoC}% battery remains \n ${distance} mi., ${duration} min.`}
-
-          </Text>
+          
+          {pageState ==='routeState' && showPolyline && 
+          <View style={styles.workingHourContainer}>
+            <DirectionsItems input={['Travel distance*:',`${distance} mi.`]}/>
+            <DirectionsItems input={['Travel time*:',`${duration} min.`]}/>
+            <DirectionsItems input={['Battery level at start:',`${receivedBatteryLevel} %`]}/>
+            <DirectionsItems input={['Battery level at destination*:',`${finalSoC} %`]}/>
+            <Text style={{paddingLeft:30, marginTop:10}}>*Estimated values.</Text>
+           </View>
+          }
           </ScrollLayout>
         </BottomSheet>
       }
@@ -661,13 +699,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'flex-start' 
   },
-  workingHourItem1:{
-    width: '50%',
-    paddingLeft:30,
-  },
-  workingHourItem2:{
-    width: '50%',
-  },
   statusText:{
     fontSize: 16,
   },
@@ -675,10 +706,25 @@ const styles = StyleSheet.create({
     position:'absolute',
     left:'85%',
     alignItems:'flex-end',
-    marginTop:10,
+    marginTop:15,
     paddingRight:10,
     width:'15%',
-  }
+  },
+  textshadow:{
+    fontSize:100,
+    color:'#FFFFFF',
+    fontFamily:'Times New Roman',
+    paddingLeft:30,
+    paddingRight:30,
+    textShadowColor:'#585858',
+    textShadowOffset:{width: 5, height: 5},
+    textShadowRadius:10,
+  },
+  directionsText:{
+      fontSize: 22,
+      fontWeight:"400",
+      paddingBottom:2,
+  },
  });
 
 export default Route

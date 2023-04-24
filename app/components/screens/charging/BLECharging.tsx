@@ -22,6 +22,8 @@ import {
   Pressable,
 } from 'react-native';
 
+import * as Progress from 'react-native-progress';
+
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 const SECONDS_TO_SCAN_FOR = 3;
@@ -33,9 +35,10 @@ import { Alert } from 'react-native';
 import Button from '../../ui/Button';
 import { useBLE } from '../../../hooks/useBLE';
 
+const Separator = () => <View style={styles.separator} />;
 
 const BLECharging= () => {
-  const {whPeripheral,isScanning,peripherals,isConnected,receivedData,sendDataRPi,startScan,togglePeripheralConnection} = useBLE();
+  const {whPeripheral,isScanning,peripherals,isConnected,receivedBatteryLevel,sendDataRPi,startScan,togglePeripheralConnection} = useBLE();
 
 
   const renderItem = ({item}:any) => {
@@ -51,67 +54,59 @@ const BLECharging= () => {
       </TouchableHighlight>
     );
   };
+  function getColor(value:number) {
+    //value from 0 to 1
+    var hue = ((1 - value) * 120).toString(10);
+    return ["hsl(", hue, ",100%,40%)"].join("");
+  }
 
   return (
     <>
        <StatusBar barStyle="dark-content" />
        
         <SafeAreaView>
-              
-              <View style={{margin: 5}}>
-                <Button
-                  title={'Scan Bluetooth (' + (isScanning ? 'scanning...' : 'off') + ')'}
-                  onPress={() => startScan() } 
-                />            
-              </View>
-  
-              {/* {
-              false && isConnected &&
-              <View style={styles.buttonStyleContainer}>
-                <TouchableHighlight 
-                onPress={()=>{sendDataRPi(`517229:11:29:22:@`,whPeripheral)}} 
-                underlayColor="#FBBF24"
-                className={`bg-yellow-300 text-gray-800 rounded-xl my-4 py-2 m-3 w-5/12`}>
-                    <Text className='text-gray-800 text-center text-lg'>
-                        Update SoC
-                    </Text>
-                </TouchableHighlight>
-                <TouchableHighlight 
-                onPress={()=>{let item = whPeripheral; item.connected=true; togglePeripheralConnection(item)}} 
-                underlayColor="#FBBF24"
-                className={`bg-yellow-300 text-gray-800 rounded-xl my-4 py-2 m-3 w-5/12`}>
-                    <Text className='text-gray-800 text-center text-lg'>
-                        Disconnect Chair
-                    </Text>
-                </TouchableHighlight>
-              </View>
-              } */}
-              {/* { false &&
-              <View style={styles.body}>
-                <ScrollView>
-                  <Text style={styles.peripheralName}>Received Data:</Text>
-                  <Text style={styles.peripheralName}>{receivedData}</Text>
-                </ScrollView>
-              </View>
-              } */}
-  
-              {/* {(Array.from(peripherals.values()).length == 0) &&
-                <View style={{flex:1, margin: 20}}>
-                  <Text style={{textAlign: 'center'}}>No peripherals</Text>
+              <View style={styles.container}>
+
+              {Number(receivedBatteryLevel)===0&&
+              <>
+                <Text className='text-center text-gray-800 text-xl'>Wheelchair not found</Text>
+                <View className='w-4/5'>
+                  <Separator />
                 </View>
-              } */}
+              </>}
 
-              {/* Work on the logic of this part */}
-              <Text style={styles.textBattery}> Wheelchair</Text>
-              {whPeripheral!==undefined ?
-              <FlatList
-              data={whPeripheral!==undefined ? Array.from((new Map([...peripherals].filter(([k, v])=>k===whPeripheral.id))).values()):Array.from(new Map())}
-              contentContainerStyle={{rowGap: 12, padding:10}}
-              renderItem={renderItem}
-              keyExtractor={item => item.id}
-              /> : <Text style={styles.textBattery2}>Couldn't find your wheelchair</Text>
+                {Number(receivedBatteryLevel)>0&& <>        
+                <Text style={styles.textBattery}>
+                  WC Battery Level
+                </Text>
+                <Progress.Bar 
+                progress={Number(receivedBatteryLevel)/100} 
+                width={180} height={70} 
+                color={getColor(1-Number(receivedBatteryLevel)/100)} 
+                borderWidth={1}
+                borderColor='#000000'/>
+                <Text style={styles.text}>
+                  {Number(receivedBatteryLevel)+'%'}
+                </Text>
+                <View className='w-4/5'>
+                <Separator />
+                </View>
+                </> }
+              
 
-              }
+              {/* <Text className='text-2xl text-center pt-1'>Scan for Chargers</Text> */}
+              
+              <View style={{margin: 5, width:'80%'}}>
+                <Button
+                  title={isScanning ?'Searching...':'Search for Chargers'}
+                  onPress={() => startScan() } 
+                />     
+                <Separator />    
+              </View>
+
+
+
+  
 
               {/* Chargers should be sorted by RSSI https://javascript.plainenglish.io/how-to-sort-a-map-in-javascript-es6-59751f06f692   */}
               <Text style={styles.textBattery}>Chargers</Text>
@@ -121,10 +116,10 @@ const BLECharging= () => {
                 contentContainerStyle={{rowGap: 12, padding:10}}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
-                /> : <Text style={styles.textBattery2}>Chargers are not found nearby</Text>
+                /> : <Text style={styles.textBattery2}>Chargers not found</Text>
               }
 
-            
+              </View>
                
         </SafeAreaView>
 
@@ -250,6 +245,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 10,
     color: "#1F2937",
+  },
+  text: {
+    fontSize: 25,
+    textAlign: 'center',
+    margin: 10,
+    color: "#1F2937",
+  },
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    marginTop: 20,
+    paddingTop: 20,
+  },
+  separator: {
+    marginVertical: 15,
+    borderBottomColor: '#1F2937',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });
 

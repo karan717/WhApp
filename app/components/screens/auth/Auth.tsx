@@ -30,14 +30,15 @@ const Auth:FC = () => {
     <View className={styleCenter}>
       <View className = 'mx-5 justify-center items-center h-full'>
         <View className='w-9/12'>
-          <Text className = 'text-center text-gray-800 text-2xl font-bold mb-2'>
+          <Text className = 'text-center text-gray-800 text-3xl font-bold mb-2'>
             {isReg ? 'Sign Up': 'Sign In'}
           </Text>
           {isLoading ? <Loader/> :<>
           <Field 
           val={data.email} 
           placeholder='Enter email'
-          onChange={val => setData({...data, email:val})}/>
+          onChange={val => setData({...data, email:val})}
+          />
 
           <Field 
           val={data.password} 
@@ -48,7 +49,7 @@ const Auth:FC = () => {
           <Button onPress={authHandler} title={isReg ? 'Sign Up': 'Sign In'} />
 
           <Pressable onPress={()=> setIsReg(!isReg)}>
-            <Text className='text-gray-800 opacity=30 text-right text-sm'>
+            <Text className='text-gray-800 opacity=30 text-right text-xl'>
               {isReg ? 'Login' : 'Register'}
             </Text>
 

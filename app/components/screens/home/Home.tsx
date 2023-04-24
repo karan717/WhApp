@@ -7,10 +7,12 @@ import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import { useBLE } from '../../../hooks/useBLE';
 import Loader from '../../ui/Loader';
+import Button from '../../ui/Button';
 
 //#08F26E #86DC3D #5BC236
 //<Text className='text-2xl text-center pt-40'>Home</Text>
 //'bg-yelllow-300','#FBBF24'
+const Separator = () => <View style={styles.separator} />;
 
 const Home:FC = (props) => {
   const {navigate} = useNavigation()
@@ -49,6 +51,56 @@ const Home:FC = (props) => {
     };
   }, [whPeripheral,receivedBatteryLevel,isScanning,timesToSearch]);
 
+  function getColor(value:number) {
+    //value from 0 to 1
+    var hue = ((1 - value) * 120).toString(10);
+    return ["hsl(", hue, ",100%,40%)"].join("");
+  }
+  const handleUploadData = () =>{
+    Alert.alert(
+      'Do you approve data upload?',
+      'NOTE: Data includes users\' GPS history.',
+      //'The data on the wheelchair battery level and geolocation will be uploaded to a server. It helps to improve the routing capabilities of the app',
+    [
+      {
+        text: 'Cancel',
+        onPress: () => Alert.alert('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {
+        text: 'Ok',
+        onPress: () => Alert.alert('The data is uploaded'),
+        style: 'destructive',
+      }
+    ],
+    {
+      cancelable: true,
+      onDismiss: () =>
+        Alert.alert(
+          'Cancel Pressed',
+        ),
+    },)
+  }
+
+  const handleFindWheelchair = async () =>{
+    console.log(peripherals)
+    //console.log(typeof whPeripheral.id)
+    //change the logic, when wheelchair is disconnected and whPeripheral!== undefined
+    //this function doesnt start scanning
+    if(whPeripheral===undefined){ 
+      await startScan();
+    }else
+    {
+      let whInstance = peripherals.get(whPeripheral.id);
+      if(whInstance.connected){
+        sendDataRPi('Battery Level',whPeripheral);
+      }else{
+        await connectPeripheral(whPeripheral)
+        //sendDataRPi('Battery Level',whPeripheral);
+      }
+    }
+  }
+
 
   return (<>
     
@@ -57,43 +109,41 @@ const Home:FC = (props) => {
       
       
       <View style={styles.container}>
-        {timesToSearch>1&&Number(receivedBatteryLevel)===0&&<Loader/>}
+        {timesToSearch>1&&Number(receivedBatteryLevel)===0&&
+        <>
+        <Loader/>
+        <Text className='text-center text-gray-800 text-xl'>Connecting to Wheelchair ...</Text>
+        <View className='w-4/5'>
+          <Separator />
+        </View>
+        </>
+        
+        }
         {timesToSearch<=1&&Number(receivedBatteryLevel)===0&&
         <>
-          <Text>Couldn't find your wheelchair</Text>
-          <TouchableHighlight 
-            onPress={async ()=> {
-              console.log(peripherals)
-              //console.log(typeof whPeripheral.id)
-              if(whPeripheral===undefined){
-                await startScan();
-              }else
-              {
-                let whInstance = peripherals.get(whPeripheral.id);
-                if(whInstance.connected){
-                  sendDataRPi('Battery Level',whPeripheral);
-                }else{
-                  await connectPeripheral(whPeripheral)
-                  //sendDataRPi('Battery Level',whPeripheral);
-                }
-              }
-              }} 
-            underlayColor='#D6D8DB'
-            className={`bg-green-500 text-gray-800 rounded-xl w-6/12 my-4 py-3`}>
-            <Text className='text-center text-xl text-gray-800'>
-                Scan Wheelchair
-            </Text>
-          </TouchableHighlight>
+          <Text className='text-center text-gray-800 text-xl'>Wheelchair not found</Text>
+          <View className='w-4/5'>
+            <Button title='Connect to Wheelchair' onPress={handleFindWheelchair} />
+            <Separator />
+          </View>
         </>}
 
         {Number(receivedBatteryLevel)>0&& <>        
         <Text style={styles.textBattery}>
-          Battery Level
+          WC Battery Level
         </Text>
-        <Progress.Bar progress={Number(receivedBatteryLevel)/100} width={200} height={90} color='#5BC236'/>
+        <Progress.Bar 
+        progress={Number(receivedBatteryLevel)/100} 
+        width={180} height={70} 
+        color={getColor(1-Number(receivedBatteryLevel)/100)} 
+        borderWidth={1}
+        borderColor='#000000'/>
         <Text style={styles.text}>
           {Number(receivedBatteryLevel)+'%'}
         </Text>
+        <View className='w-4/5'>
+        <Separator />
+        </View>
         </> }
 
         {/* <Text style={styles.textBattery}>
@@ -104,51 +154,14 @@ const Home:FC = (props) => {
           {Number(receivedBatteryLevel)+'%'}
         </Text> */}
 
+        <View className='w-4/5'>
+          <Button title='User Profile' onPress={()=> navigate('Profile')}/>
+          <Separator />
+          <Button title='Upload Data' onPress={handleUploadData} />
+        </View>
 
-
-
-        <TouchableHighlight 
-          onPress={()=> navigate('Profile')} 
-          underlayColor='#D6D8DB'
-          className={`bg-green-500 text-gray-800 rounded-xl w-6/12 my-4 py-3`}>
-          <Text className='text-center text-xl text-gray-800'>
-              User Profile
-          </Text>
-        </TouchableHighlight>
-
-        <TouchableHighlight 
-          onPress={()=>{Alert.alert(
-            'Do you want to upload the wheelchair data?',
-          'The data on the wheelchair battery level and geolocation will be uploaded to a server. It helps to improve the routing capabilities of the app',
-          [
-            {
-              text: 'Cancel',
-              onPress: () => Alert.alert('Cancel Pressed'),
-              style: 'cancel',
-            },
-            {
-              text: 'Ok',
-              onPress: () => Alert.alert('The data is uploaded'),
-              style: 'destructive',
-            }
-          ],
-          {
-            cancelable: true,
-            onDismiss: () =>
-              Alert.alert(
-                'Cancel Pressed',
-              ),
-          },)
-        }} 
-          underlayColor='#D6D8DB'
-          className={`bg-green-500 text-gray-800 rounded-xl w-6/12 my-4 py-3`}>
-          <Text className='text-center text-xl text-gray-800'>
-              Upload Data
-          </Text>
-        </TouchableHighlight>
-
-        <Text className='text-center text-gray-800'>
-          Last uploaded on 01/01/2023
+        <Text className='text-center text-gray-800 text-xl'>
+          Last upload: 01/01/2023
         </Text>
 
         
@@ -181,8 +194,12 @@ const styles = StyleSheet.create({
     fontSize: 25,
     textAlign: 'center',
     margin: 10,
-    paddingBottom:30,
     color: "#1F2937",
+  },
+  separator: {
+    marginVertical: 15,
+    borderBottomColor: '#1F2937',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });
 

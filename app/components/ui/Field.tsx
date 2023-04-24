@@ -31,8 +31,8 @@ const styles = EStyleSheet.create({
     padding: "0.5rem",
     marginTop: "0.5rem",
     backgroundColor: "#F3F4F6",
-    fontSize: "1.125rem",
-    lineHeight: "1.35rem",
+    fontSize: "1.625rem",
+    lineHeight: "1.85rem",
     width: "100%",
     borderRadius: "0.75rem",
     

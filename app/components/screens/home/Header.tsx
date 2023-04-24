@@ -18,7 +18,7 @@ const Header:FC = () => {
       onPress={() => navigate('Profile')}
       className='flex-row items-end'
       >
-        <Text className='text-2xl text-gray-800 font-bold'>{name}</Text>
+        <Text className='text-2xl text-gray-800 font-bold'>{name+'\'s Wheelchair'}</Text>
         <Entypo
         name = 'chevron-small-right'
         size={28}
