@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
 import React, { FC } from 'react'
 import { IProfile, useProfile } from './useProfile'
 import Heading from '../../ui/Heading'
@@ -16,11 +16,11 @@ const Profile:FC = () => {
   const {logout} = useAuth()
   const {isLoading: isProfileLoading, name, setName,
     surname,setSurname,WhID,setWhID, whModel,setWhModel,rCurrent,setRCurrent,rVoltage,
-    setRVoltage,manWeight,setManWeight, profile} = useProfile()
+    setRVoltage,manWeight,setManWeight, whName,setWhName, profile} = useProfile()
   const {navigate} = useNavigation()
 
   const {isLoading, isSuccess,updateProfile} = useUpdateProfile(name, surname,WhID,whModel,rVoltage,rCurrent,
-    manWeight, profile.docId)
+    manWeight, whName, profile.docId)
 
   return (
     <Layout isScrollView={false}>
@@ -39,7 +39,13 @@ const Profile:FC = () => {
 
         <Heading text='Profile' isCenter={true}/>
       </View>
-      <ScrollView className='px-4'>
+      <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={10}
+      enabled={Platform.OS === "ios"} //disable this feature for android
+      >
+
+      <ScrollView className='px-4' keyboardDismissMode="on-drag">
         {isSuccess && (
           <View className='bg-green-500 p-3 py-2 rounded-lg'>
             <Text className='text-white text-center'>
@@ -48,43 +54,54 @@ const Profile:FC = () => {
           </View>
         )}
         {(isProfileLoading || isLoading) ? <Loader/> : <>
+
         <FieldTitle name="First Name"/>
           <Field onChange={setName} val={name} 
-          placeholder='Enter first name' />
+          placeholder='First Name' />
 
         <FieldTitle name="Last Name"/>
           <Field onChange={setSurname} val={surname} 
-          placeholder='Enter last name' />
+          placeholder='Last Name' />
 
         <FieldTitle name="Wheelchair ID *"/>
           <Field onChange={setWhID} val={WhID} 
-          placeholder='Wheelchair ID: 123456' isSecure={true} />
+          placeholder='Wheelchair ID: 123456' isSecure={true} 
+          isNumeric={true} />
 
-        <FieldTitle name="Battery Voltage (Max.) *"/>
-          <Field onChange={setRVoltage} val={rVoltage} 
-          placeholder='Enter battery voltage' />
-
-        <FieldTitle name="Battery Current (Max.) *"/>
-          <Field onChange={setRCurrent} val={rCurrent} 
-          placeholder='Enter battery current' />
+        <FieldTitle name="Wheelchair Name"/>
+          <Field onChange={setWhName} val={whName} 
+          placeholder='Wheelchair Name' />
 
         <FieldTitle name="Wheelchair Model"/>
           <Field onChange={setWhModel} val={whModel} 
           placeholder='Enter wheelchair model' />
 
+        <FieldTitle name="Battery Voltage (Max.) *"/>
+          <Field onChange={setRVoltage} val={rVoltage} 
+          placeholder='Battery Voltage (Volts)'
+          isNumeric={true} />
+
+        <FieldTitle name="Battery Current (Max.) *"/>
+          <Field onChange={setRCurrent} val={rCurrent} 
+          placeholder='Battery Current (Amps)' 
+          isNumeric={true} />
+
         <FieldTitle name="User Weight, lbs"/>
           <Field onChange={setManWeight} val={manWeight} 
-          placeholder='Enter your weight' />
-
+          placeholder='User Weight (lbs)'
+          isNumeric={true} />
+        
 
 
           <Button onPress={updateProfile} title='Update Profile'
           colors={['bg-yelllow-300','#FBBF24']}/>
-
+          <View className={Platform.OS === "ios"?'pb-20':''}>
           <Button onPress={logout} title='Logout'
           colors={['bg-gray-200','#D6D8DB']}/>
+          </View>
         </>}
       </ScrollView>
+      </KeyboardAvoidingView>
     </Layout>
   )
 }

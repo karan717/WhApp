@@ -15,7 +15,7 @@ export const menu:IFooterItem[] =[
         title:'Charging',
     },
     {
-        iconName:"ellipsis1",
-        title:'More',
+        iconName:"infocirlceo",
+        title:'About',
     },
 ]

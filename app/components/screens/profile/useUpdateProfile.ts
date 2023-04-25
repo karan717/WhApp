@@ -6,7 +6,7 @@ import { Alert } from 'react-native'
 
 
 export const useUpdateProfile = (name: string,surname:string,WhID:string,
-    whModel:string,rVoltage:string,rCurrent:string,manWeight:string, docId:string) => {
+    whModel:string,rVoltage:string,rCurrent:string,manWeight:string, whName:string, docId:string) => {
     const {user} = useAuth()
 
     const [isLoading, setIsLoading] = useState(false)
@@ -26,6 +26,7 @@ export const useUpdateProfile = (name: string,surname:string,WhID:string,
                 displayRVoltage: rVoltage,
                 displayRCurrent: rCurrent,
                 displayManWeight: manWeight,
+                displayWhName: whName,
             })
 
             setIsSuccess(true)

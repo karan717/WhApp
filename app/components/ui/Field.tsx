@@ -8,9 +8,10 @@ interface IField{
     val: string
     placeholder: string
     isSecure?:boolean    
+    isNumeric?:boolean
 }
 
-const Field :FC<IField>= ({onChange,placeholder,val,isSecure}) => {
+const Field :FC<IField>= ({onChange,placeholder,val,isSecure,isNumeric}) => {
   return (
     <TextInput
     showSoftInputOnFocus={true}
@@ -18,8 +19,9 @@ const Field :FC<IField>= ({onChange,placeholder,val,isSecure}) => {
     onChangeText={onChange}
     value={val}
     secureTextEntry={isSecure}
-    autoCapitalize='none'
+    autoCapitalize='sentences'
     placeholderTextColor="#888"
+    keyboardType={isNumeric?'numeric':'default'}
     //className='text-lg rounded-xl bg-gray-100 mt-3 p-3 w-full'
     style={styles.field}
     />
@@ -32,9 +34,12 @@ const styles = EStyleSheet.create({
     marginTop: "0.5rem",
     backgroundColor: "#F3F4F6",
     fontSize: "1.625rem",
-    lineHeight: "1.85rem",
+    lineHeight: "2rem",
     width: "100%",
     borderRadius: "0.75rem",
+    marginBottom: "0.75rem",
+    borderBottomColor: '#000000',
+    borderBottomWidth: 1,
     
   }
 })

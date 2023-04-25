@@ -11,6 +11,7 @@ import Route from '../components/screens/route/Route'
 import Charging from '../components/screens/charging/Charging'
 import Support from '../components/screens/support/Support'
 import Footer from '../components/layout/footer/Footer'
+import About from '../components/screens/about/About'
 
 const Stack = createNativeStackNavigator()
 
@@ -47,6 +48,7 @@ const Navigation:FC = () => {
                 <Stack.Screen name='Route' component={Route} />
                 <Stack.Screen name='Support' component={Support} />
                 <Stack.Screen name='More' component={More} />
+                <Stack.Screen name='About' component={About} />
             </>) : (<Stack.Screen name='Auth' component={Auth} />)}
         </Stack.Navigator>
     </NavigationContainer>

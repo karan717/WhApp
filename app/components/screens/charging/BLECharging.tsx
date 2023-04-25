@@ -34,6 +34,7 @@ import BleManager from 'react-native-ble-manager';
 import { Alert } from 'react-native';
 import Button from '../../ui/Button';
 import { useBLE } from '../../../hooks/useBLE';
+import Loader from '../../ui/Loader';
 
 const Separator = () => <View style={styles.separator} />;
 
@@ -97,6 +98,7 @@ const BLECharging= () => {
               {/* <Text className='text-2xl text-center pt-1'>Scan for Chargers</Text> */}
               
               <View style={{margin: 5, width:'80%'}}>
+              {isScanning&&<Loader/>}
                 <Button
                   title={isScanning ?'Searching...':'Search for Chargers'}
                   onPress={() => startScan() } 

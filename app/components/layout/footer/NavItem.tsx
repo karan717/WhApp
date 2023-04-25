@@ -18,11 +18,11 @@ const NavItem:FC<INavItem> = ({item,navigate, currentRoute}) => {
         {item.iconName!='battery'?
         <AntDesign name={item.iconName} 
             color={isActive?'#3B82F6':'#6B7280'}
-            size={25}
+            size={27}
         />:
         <Entypo name={item.iconName} 
             color={isActive?'#3B82F6':'#6B7280'}
-            size={25}
+            size={27}
         />}
         <Text className={`text-sm ${isActive ? 'text-blue-500' : 'text-gray-500'}`}>
             {item.title}

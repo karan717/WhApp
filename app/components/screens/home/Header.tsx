@@ -7,18 +7,18 @@ import Loader from '../../ui/Loader'
 import Entypo from 'react-native-vector-icons/Entypo'
 
 const Header:FC = () => {
-  const {isLoading, name} = useProfile()
+  const {isLoading, name, whName} = useProfile()
 
   const {navigate} = useNavigation()
 
   return isLoading ? <Loader/> : (
     <View className = 'px-4 flex-row items-center'>
-      <Avatar name={name}/>
+      <Avatar name={whName!=''?whName:name}/>
       <TouchableOpacity 
       onPress={() => navigate('Profile')}
       className='flex-row items-end'
       >
-        <Text className='text-2xl text-gray-800 font-bold'>{name+'\'s Wheelchair'}</Text>
+        <Text className='text-2xl text-gray-800 font-bold'>{whName!=''?whName:name+'\'s Wheelchair'}</Text>
         <Entypo
         name = 'chevron-small-right'
         size={28}

@@ -123,7 +123,8 @@ const Home:FC = (props) => {
         <>
           <Text className='text-center text-gray-800 text-xl'>Wheelchair not found</Text>
           <View className='w-4/5'>
-            <Button title='Connect to Wheelchair' onPress={handleFindWheelchair} />
+            {isScanning&&<Loader/>}
+            <Button title={isScanning ?'Searching...':'Connect to Wheelchair'} onPress={handleFindWheelchair} />
             <Separator />
           </View>
         </>}

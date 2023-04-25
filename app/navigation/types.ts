@@ -6,4 +6,5 @@ export type TypeRootStackParamList = {
     Support: undefined
     Charging: undefined
     More: undefined
+    About: undefined
 }

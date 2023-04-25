@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Alert } from 'react-native'
+import { View, Text, Pressable, Alert, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
 import React, { FC, useState } from 'react'
 import { styleCenter } from '../../layout/Layout'
 import { useAuth } from '../../../hooks/useAuth'
@@ -27,9 +27,18 @@ const Auth:FC = () => {
     setData({} as IData)
   }
   return (
-    <View className={styleCenter}>
+    <View className='h-full w-full bg-white pt-16'>
+      <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={10}
+      enabled={Platform.OS === "ios"} //disable this feature for android
+      >
       <View className = 'mx-5 justify-center items-center h-full'>
-        <View className='w-9/12'>
+      <ScrollView >
+      <Image source={require('./img/Logo.png')}
+      style={{width: 300, height: 220, marginBottom:50, marginTop:100}}/>
+        
+        
           <Text className = 'text-center text-gray-800 text-3xl font-bold mb-2'>
             {isReg ? 'Sign Up': 'Sign In'}
           </Text>
@@ -55,8 +64,10 @@ const Auth:FC = () => {
 
           </Pressable>
           </>}
-        </View>
+        </ScrollView>
+        
       </View>
+      </KeyboardAvoidingView>
     </View>
   )
 }
