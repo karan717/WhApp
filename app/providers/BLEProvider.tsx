@@ -18,6 +18,9 @@ import { value } from 'react-native-extended-stylesheet';
 import { Utf8ArrayToStr } from '../utils/Utf8ArrayToStr';
 import { toUTF8Array } from '../utils/toUTF8Array';
 import { useProfile } from '../components/screens/profile/useProfile';
+import { useAuth } from '../hooks/useAuth';
+import firestore from '@react-native-firebase/firestore'
+import { IProfile } from '../components/screens/profile/useProfile';
 
 interface BLEContext {
     isScanning: boolean
@@ -61,12 +64,27 @@ export const BLEProvider: FC<Props> =  ({children})  => {
     whPeripheralRef.current = newWhPeripheral;
     setWhPeripheral(newWhPeripheral);
   }
-  const {WhID} = useProfile()
+  //Obtaining the latest Wheelchair ID from the Database
+  const [WhID, setWhID] = useState('');
+
+  const WhIDRef = useRef<string>(WhID);
+  const _setWhID = (newWhID:string) =>{
+    WhIDRef.current = newWhID;
+    setWhID(newWhID)
+  }
+
+  const {user} = useAuth();
   //console.log({peripherals: peripherals.entries()});
 
   const updatePeripherals = (key:any, value:any) => {
     _setPeripherals(new Map(peripherals.set(key, value)));
   };
+  const deletePeripheral = (key:any) => {
+    if(peripherals.delete(key)){
+      console.log('deleted, new periphera:',peripherals)
+      _setPeripherals(new Map(peripherals));
+    }
+  }
 
   const startScan = async () => {
     if (!isScanning) {
@@ -167,9 +185,9 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       
 
 
-      if(peripheral.advertising.localName.substring(0,7)=='ACL-Ch-'||peripheral.advertising.localName.substring(0,13)=='ACL-Wh-'+WhID){
+      if(peripheral.advertising.localName.substring(0,7)=='ACL-Ch-'||peripheral.advertising.localName.substring(0,13)=='ACL-Wh-'+WhIDRef.current){
         console.log('discovered per',peripherals.get(peripheral.id))
-        console.log(WhID)
+        console.log(WhIDRef.current) //Use here useRef to get WhIDRef.current
         if(peripherals.get(peripheral.id)===undefined || !peripherals.get(peripheral.id).connected){
           console.log('discovered inside',peripheral)
           peripheral.advertising.localName.substring(0,7)=='ACL-Ch-' && updatePeripherals(peripheral.id, {...peripheral,...{connecting: false, connected: false}});
@@ -211,7 +229,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         await BleManager.startNotification(peripheralUUID, service, characteristic).then(()=>{
           //If peripheral is connecting to the charger (Not Wheelchair)
           if(whPeripheral===undefined || peripheral.id!==whPeripheral.id){
-            sendDataRPi(`${WhID}:9:29:22:@`,peripheral)
+            sendDataRPi(`${WhIDRef.current}:9:29:22:@`,peripheral)
           }
           //If peripheral is connecting to Wheelchair, immediately request for Battery Level
           if(whPeripheral!==undefined && peripheral.id===whPeripheral.id){
@@ -284,6 +302,43 @@ export const BLEProvider: FC<Props> =  ({children})  => {
 
     BleManager.start({showAlert: false});
 
+    try{
+      firestore().collection('users').where('_id','==',user?.uid).limit(1).onSnapshot(
+      snapshot =>{
+          const profile = snapshot.docs.map(d => ({
+              ...(d.data() as IProfile),
+              docId: d.id
+          }))[0]
+          
+          //Check if the changed value of ID matches the current value
+          //if it doesn't match, then make the whPeripheral empty
+          //so that it can be found by BLE
+          if(whPeripheralRef!==undefined){
+            console.log('whPeripheralRefCurrent is undefined')
+            if(whPeripheralRef.current!==undefined){
+              if(whPeripheralRef.current.advertising.localName.substring(0,13)=='ACL-Wh-'+profile.displayWhID){
+                console.log('matches')
+              }else{
+                console.log('doesnt match')
+                deletePeripheral(whPeripheralRef.current.id)
+                _setWhPeripheral(undefined)
+                console.log(whPeripheralRef)
+                setReceivedBatteryLevel('0')
+              }
+
+            }
+          }else{
+            console.log('whPeripheralRef is undefined')
+          }
+          _setWhID(profile.displayWhID)
+          console.log('succesfully updated',profile.displayWhID)
+      }
+  )
+  } catch(error){
+      console.log(error)
+  }
+
+
     const listeners = [
       bleManagerEmitter.addListener("BleManagerDidUpdateState", (args) => {
         console.log(args.state)
@@ -320,7 +375,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         listener.remove();
       }
     };
-  }, [WhID]);
+  }, [user]);
 
   const handleAndroidPermissionCheck = () => {
     if (Platform.OS === 'android' && Platform.Version >= 23) {

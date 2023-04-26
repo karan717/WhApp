@@ -18,12 +18,13 @@ const Home:FC = (props) => {
   const {navigate} = useNavigation()
   const {isScanning,peripherals,whPeripheral,receivedBatteryLevel,sendDataRPi,startScan,connectPeripheral} = useBLE();
   const [timesToSearch,setTimesToSearch] = useState(5)
+  //change useEffect of the Home
   useEffect(() => {
     const interval = setInterval(async() => {
       console.log('Home UseEffect')
       let runScan = whPeripheral!==undefined //runScan check if whPeripheral found
-      console.log(!runScan)
-      console.log(whPeripheral===undefined||Number(receivedBatteryLevel)===0)
+      console.log(!runScan) //false
+      console.log(whPeripheral===undefined||Number(receivedBatteryLevel)===0) //true...
       if(!runScan){
         await startScan()
         if(whPeripheral!==undefined){
