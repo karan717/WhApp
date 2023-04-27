@@ -11,6 +11,8 @@ import { useUpdateProfile } from './useUpdateProfile'
 import { useNavigation } from '@react-navigation/native'
 import Entypo from 'react-native-vector-icons/Entypo'
 import FieldTitle from '../../ui/FieldTitle'
+import LargeText from '../../ui/LargeText'
+import { moderateScale } from '../../../Metrics'
 
 const Profile:FC = () => {
   const {logout} = useAuth()
@@ -31,10 +33,10 @@ const Profile:FC = () => {
         >
           <Entypo
           name = 'chevron-small-left'
-          size={28}
+          size={28*moderateScale(1)}
           className = 'text-gray-800'
           />
-          <Text className='text-2xl text-gray-800 font-bold'>Back</Text>
+          <LargeText text='Back'/>
         </TouchableOpacity>
 
         <Heading text='Profile' isCenter={true}/>

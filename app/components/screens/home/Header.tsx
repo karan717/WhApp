@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native'
 import { useProfile } from '../profile/useProfile'
 import Loader from '../../ui/Loader'
 import Entypo from 'react-native-vector-icons/Entypo'
+import LargeText from '../../ui/LargeText'
+import { moderateScale } from '../../../Metrics'
 
 const Header:FC = () => {
   const {isLoading, name, whName} = useProfile()
@@ -18,10 +20,10 @@ const Header:FC = () => {
       onPress={() => navigate('Profile')}
       className='flex-row items-end'
       >
-        <Text className='text-2xl text-gray-800 font-bold'>{whName!=''?whName:name+'\'s Wheelchair'}</Text>
+        <LargeText text={whName!=''?whName:name+'\'s Wheelchair'} />
         <Entypo
         name = 'chevron-small-right'
-        size={28}
+        size={28*moderateScale(1)}
         className = 'text-gray-800'
         />
       </TouchableOpacity>

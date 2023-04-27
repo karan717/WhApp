@@ -1,10 +1,11 @@
 import { View, Text } from 'react-native'
 import React, { FC } from 'react'
+import { textStyles } from '../../style'
 
 const FieldTitle:FC<{name:string}>= ({name}) => {
   return (
     <View>
-      <Text className='flex-row items-end text-xl text-gray-800  pt-1'>
+      <Text style={textStyles.fieldTitle}>
         {name}
       </Text>
     </View>

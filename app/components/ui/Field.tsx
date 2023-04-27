@@ -1,6 +1,6 @@
 import { TextInput } from 'react-native'
 import React, { FC } from 'react'
-import EStyleSheet from 'react-native-extended-stylesheet'
+import { textStyles } from '../../style'
 
 interface IField{
     //children: React.ReactNode;
@@ -9,9 +9,10 @@ interface IField{
     placeholder: string
     isSecure?:boolean    
     isNumeric?:boolean
+    isCapitalized?:boolean
 }
 
-const Field :FC<IField>= ({onChange,placeholder,val,isSecure,isNumeric}) => {
+const Field :FC<IField>= ({onChange,placeholder,val,isSecure,isNumeric,isCapitalized=true}) => {
   return (
     <TextInput
     showSoftInputOnFocus={true}
@@ -19,29 +20,12 @@ const Field :FC<IField>= ({onChange,placeholder,val,isSecure,isNumeric}) => {
     onChangeText={onChange}
     value={val}
     secureTextEntry={isSecure}
-    autoCapitalize='sentences'
+    autoCapitalize={isCapitalized?'sentences':'none'}
     placeholderTextColor="#888"
     keyboardType={isNumeric?'numeric':'default'}
-    //className='text-lg rounded-xl bg-gray-100 mt-3 p-3 w-full'
-    style={styles.field}
+    style={textStyles.field}
     />
   )
 }
-
-const styles = EStyleSheet.create({
-  field:{
-    padding: "0.5rem",
-    marginTop: "0.5rem",
-    backgroundColor: "#F3F4F6",
-    fontSize: "1.625rem",
-    lineHeight: "2rem",
-    width: "100%",
-    borderRadius: "0.75rem",
-    marginBottom: "0.75rem",
-    borderBottomColor: '#000000',
-    borderBottomWidth: 1,
-    
-  }
-})
 
 export default Field
