@@ -16,7 +16,7 @@ export const layoutStyle = EStyleSheet.create({
 })
 
 
-//Styles for Auth Page
+/*   Styles for Auth Page   */
 //Choose the shorter side of the screen
 let logoSize = verticalScale(1)>horizontalScale(1)?horizontalScale(1):verticalScale(1);
 export const authStyle = EStyleSheet.create({
@@ -50,7 +50,10 @@ export const authStyle = EStyleSheet.create({
         marginLeft: 'auto',
     },
 })
-//Style for Footer
+
+
+/*   Styles for Footer   */
+
 export const footerStyles = EStyleSheet.create({
     footerContainer:{
         paddingLeft: 5*moderateScale(1),
@@ -75,12 +78,55 @@ export const footerStyles = EStyleSheet.create({
     }
 })
 
-//Styles for all texts in route page
-export const routeTextStyle = EStyleSheet.create({
+/* Styles for Home page */
+
+export const homeStyles = EStyleSheet.create({
+    layoutContainer:{
+        backgroundColor: "#ffffff",
+        width: "100%",
+        height: "100%",
+        paddingTop: verticalScale(1)*50,
+    },
+    outerContainer:{
+        flex: 1,
+    },
+    scrollViewContainer:{
+        flexGrow: 1, 
+        justifyContent: 'center' 
+    },
+    innerViewContainer:{
+        justifyContent: "center",
+        alignItems: "center",
+        //marginLeft: horizontalScale(1)>1.5 ? horizontalScale(1)*guidelineBaseWidth*0.15:horizontalScale(1)*guidelineBaseWidth*0.1,
+        //marginRight: horizontalScale(1)>1.5 ? horizontalScale(1)*guidelineBaseWidth*0.15:horizontalScale(1)*guidelineBaseWidth*0.1,
+        //for larger screens it will have 15% margin from each side, while for smaller screens it will have 10%
+    },
+    buttonViewContainer: {
+        width: `${100-20*horizontalScale(1)}%`
+      },
+    textBattery: {
+        fontSize: 25*moderateScale(1),
+        textAlign: 'center',
+        margin: 10,
+        color: "#1F2937",
+      },
+    separator: {
+        marginVertical: 15*verticalScale(1),
+        borderBottomColor: '#1F2937',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+      },
 
 })
 
-//Styles for all texts, input fields, and buttons, avatar in the app (ui folder)
+
+/*   Styles for Route page  */
+
+export const routeStyles = EStyleSheet.create({
+
+})
+
+/*   Styles for all texts, input fields, and buttons, avatar in the app (ui folder)   */
+
 export const textStyles = EStyleSheet.create({ 
     headingText:{
         color: "#1F2937",

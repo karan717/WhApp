@@ -1,4 +1,4 @@
-import { View, Text, TouchableHighlight, Alert } from 'react-native'
+import { View, Text, TouchableHighlight, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { FC, useEffect, useState } from 'react'
 import Header from './Header'
 import Layout from '../../layout/Layout'
@@ -8,11 +8,13 @@ import { useNavigation } from '@react-navigation/native'
 import { useBLE } from '../../../hooks/useBLE';
 import Loader from '../../ui/Loader';
 import Button from '../../ui/Button';
+import { authStyle, homeStyles } from '../../../style';
+import SmallText from '../../ui/SmallText';
 
 //#08F26E #86DC3D #5BC236
 //<Text className='text-2xl text-center pt-40'>Home</Text>
 //'bg-yelllow-300','#FBBF24'
-const Separator = () => <View style={styles.separator} />;
+const Separator = () => <View style={homeStyles.separator} />;
 
 const Home:FC = (props) => {
   const {navigate} = useNavigation()
@@ -103,106 +105,107 @@ const Home:FC = (props) => {
   }
 
 
-  return (<>
-    
-    <Layout isScrollView={true}>
+  return (
+  <>
+
+
+  <View style={homeStyles.layoutContainer}>
     <Header/>
-      
-      
-      <View style={styles.container}>
-        {timesToSearch>1&&Number(receivedBatteryLevel)===0&&
-        <>
-        <Loader/>
-        <Text className='text-center text-gray-800 text-xl'>Connecting to Wheelchair ...</Text>
-        <View className='w-4/5'>
-          <Separator />
-        </View>
-        </>
-        
-        }
-        {timesToSearch<=1&&Number(receivedBatteryLevel)===0&&
-        <>
-          <Text className='text-center text-gray-800 text-xl'>Wheelchair not found</Text>
-          <View className='w-4/5'>
-            {isScanning&&<Loader/>}
-            <Button title={isScanning ?'Searching...':'Connect to Wheelchair'} onPress={handleFindWheelchair} />
-            <Separator />
-          </View>
-        </>}
-
-        {Number(receivedBatteryLevel)>0&& <>        
-        <Text style={styles.textBattery}>
-          WC Battery Level
-        </Text>
-        <Progress.Bar 
-        progress={Number(receivedBatteryLevel)/100} 
-        width={180} height={70} 
-        color={getColor(1-Number(receivedBatteryLevel)/100)} 
-        borderWidth={1}
-        borderColor='#000000'/>
-        <Text style={styles.text}>
-          {Number(receivedBatteryLevel)+'%'}
-        </Text>
-        <View className='w-4/5'>
-        <Separator />
-        </View>
-        </> }
-
-        {/* <Text style={styles.textBattery}>
-          Battery Level
-        </Text>
-        <Progress.Bar progress={Number(receivedBatteryLevel)/100} width={200} height={90} color='#5BC236'/>
-        <Text style={styles.text}>
-          {Number(receivedBatteryLevel)+'%'}
-        </Text> */}
-
-        <View className='w-4/5'>
-          <Button title='User Profile' onPress={()=> navigate('Profile')}/>
-          <Separator />
-          <Button title='Upload Data' onPress={handleUploadData} />
-        </View>
-
-        <Text className='text-center text-gray-800 text-xl'>
-          Last upload: 01/01/2023
-        </Text>
-
-        
-
-      </View>
-      
-    </Layout>
     
-    </>
+      <View style={homeStyles.outerContainer} >
+        <ScrollView contentContainerStyle={homeStyles.scrollViewContainer}>
+          <View style={homeStyles.innerViewContainer}>
+
+            {//Text at the very beginning when trying to connect to battery (5 times)
+            timesToSearch>1&&Number(receivedBatteryLevel)===0&&
+            <>
+              <Loader/>
+
+              <SmallText text='Connecting to Wheelchair...' />
+
+              <View style={homeStyles.buttonViewContainer}>
+                <Separator />
+              </View>
+            </>
+            
+            }
+            
+            { //Text when the battery is not found after 5 times
+            timesToSearch<=1&&Number(receivedBatteryLevel)===0&&
+            <>
+              <SmallText text='Wheelchair not found' />
+              <View style={homeStyles.buttonViewContainer}>
+                {isScanning&&<Loader/>}
+                <Button title={isScanning ?'Searching...':'Connect to Wheelchair'} onPress={handleFindWheelchair} />
+                <Separator />
+              </View>
+            </>}
+
+            
+            {//Battery Level when the wheelchair is found
+            Number(receivedBatteryLevel)>0&& 
+            <>        
+              <Text style={homeStyles.textBattery}>
+                WC Battery Level
+              </Text>
+              
+              <Progress.Bar 
+              progress={Number(receivedBatteryLevel)/100} 
+              width={180} height={70} 
+              color={getColor(1-Number(receivedBatteryLevel)/100)} 
+              borderWidth={1}
+              borderColor='#000000'/>
+
+              <Text style={homeStyles.textBattery}>
+                {Number(receivedBatteryLevel)+'%'}
+              </Text>
+
+              <View style={homeStyles.buttonViewContainer}>
+                <Separator />
+              </View>
+            </> 
+            }
+
+            <View style={homeStyles.buttonViewContainer}>
+              <Button title='User Profile' onPress={()=> navigate('Profile')}/>
+              <Separator />
+              <Button title='Upload Data' onPress={handleUploadData} />
+            </View>
+
+            <SmallText text='Last upload: 01/01/2023' />
+
+          </View>
+      </ScrollView>
+    </View>
+  </View>
+    
+
+  </>
   )
 }
 
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-    marginTop: 20,
-  },
-  textBattery: {
-    fontSize: 25,
-    textAlign: 'center',
-    margin: 10,
-    color: "#1F2937",
-  },
-  text: {
-    fontSize: 25,
-    textAlign: 'center',
-    margin: 10,
-    color: "#1F2937",
-  },
-  separator: {
-    marginVertical: 15,
-    borderBottomColor: '#1F2937',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
-
 export default Home
+
+
+
+/*
+
+<Layout isScrollView={false}>
+      <Header/>
+      <View style={homeStyles.container}>
+        <ScrollView contentContainerStyle={homeStyles.scrollViewContainer}>
+          <View style={homeStyles.innerViewContainer}>
+            <Text>Hello World</Text>
+          </View>
+        </ScrollView>
+      </View>
+    </Layout>
+    
+*/
+
+
+
+
+
+
+
