@@ -4,7 +4,7 @@ import { useAuth } from '../../../hooks/useAuth'
 import Loader from '../../ui/Loader'
 import Field from '../../ui/Field'
 import Button from '../../ui/Button'
-import { authStyle } from '../../../style'
+import { authStyles } from '../../../style'
 import SmallText from '../../ui/SmallText'
 import Heading from '../../ui/Heading'
 
@@ -31,17 +31,17 @@ const Auth:FC = () => {
   }
 
   return (
-    <View style={authStyle.layoutContainer}>
+    <View style={authStyles.layoutContainer}>
       <KeyboardAvoidingView 
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       enabled={Platform.OS === "ios"} //disable this feature for android
-      style={authStyle.keyboardContainer}
+      style={authStyles.keyboardContainer}
       >
         <ScrollView 
-        contentContainerStyle={authStyle.scrollViewContainer}>
-          <View style={authStyle.innerViewContainer}>
+        contentContainerStyle={authStyles.scrollViewContainer}>
+          <View style={authStyles.innerViewContainer}>
             <Image source={require('./img/Logo.png')}
-            style={authStyle.logoStyle}/>
+            style={authStyles.logoStyle}/>
           
 
             <Heading text={isReg ? 'Sign Up': 'Sign In'} isMarginBottom={true}/>
@@ -65,7 +65,7 @@ const Auth:FC = () => {
 
               <Button onPress={authHandler} title={isReg ? 'Sign Up': 'Sign In'} />
 
-              <Pressable onPress={()=> setIsReg(!isReg)} style={authStyle.pressableStyle}>
+              <Pressable onPress={()=> setIsReg(!isReg)} style={authStyles.pressableStyle}>
                 <SmallText text={isReg ? 'Login' : 'Register'} />
               </Pressable>
             </>

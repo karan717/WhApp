@@ -19,7 +19,7 @@ export const layoutStyle = EStyleSheet.create({
 /*   Styles for Auth Page   */
 //Choose the shorter side of the screen
 let logoSize = verticalScale(1)>horizontalScale(1)?horizontalScale(1):verticalScale(1);
-export const authStyle = EStyleSheet.create({
+export const authStyles = EStyleSheet.create({
     layoutContainer:{
         backgroundColor: "#ffffff",
         width: "100%",
@@ -118,6 +118,7 @@ export const homeStyles = EStyleSheet.create({
 
 })
 
+/* Style for Profile page */
 
 /*   Styles for Route page  */
 

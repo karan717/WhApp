@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useBLE } from '../../../hooks/useBLE';
 import Loader from '../../ui/Loader';
 import Button from '../../ui/Button';
-import { authStyle, homeStyles } from '../../../style';
+import { homeStyles } from '../../../style';
 import SmallText from '../../ui/SmallText';
 
 //#08F26E #86DC3D #5BC236
