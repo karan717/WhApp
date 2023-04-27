@@ -3,6 +3,7 @@ import React, { FC } from 'react'
 import NavItem from './NavItem'
 import { menu } from './menu'
 import { TypeRootStackParamList } from '../../../navigation/types'
+import { footerStyles } from '../../../style'
 
 
 interface IFooter{
@@ -12,7 +13,7 @@ interface IFooter{
 
 const Footer:FC<IFooter> = ({navigate, currentRoute}) => {
   return (
-    <View style={styles.container}>
+    <View style={footerStyles.footerContainer}>
       {menu.map(item =>(
         <NavItem 
         key={item.title} 
@@ -23,25 +24,5 @@ const Footer:FC<IFooter> = ({navigate, currentRoute}) => {
     </View>
   )
 }
-
-
-
-const styles = StyleSheet.create({
-    container:{
-        paddingLeft: 0,
-        paddingRight: 0,
-        paddingTop: 20,
-        paddingBottom: 20,
-        backgroundColor: "#F9FAFB",
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        width: "100%",
-        borderTopColor: '#E1E1E1',
-        borderTopWidth: 1,
-
-    }
-})
 
 export default Footer

@@ -4,6 +4,8 @@ import { IFooterItem } from './types'
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { TypeRootStackParamList } from '../../../navigation/types'
+import { moderateScale } from '../../../Metrics'
+import { footerStyles } from '../../../style'
 
 interface INavItem{
     item: IFooterItem
@@ -18,13 +20,13 @@ const NavItem:FC<INavItem> = ({item,navigate, currentRoute}) => {
         {item.iconName!='battery'?
         <AntDesign name={item.iconName} 
             color={isActive?'#3B82F6':'#6B7280'}
-            size={27}
+            size={27*moderateScale(1)}
         />:
         <Entypo name={item.iconName} 
             color={isActive?'#3B82F6':'#6B7280'}
-            size={27}
+            size={27*moderateScale(1)}
         />}
-        <Text className={`text-sm ${isActive ? 'text-blue-500' : 'text-gray-500'}`}>
+        <Text style={{...footerStyles.footerText,color: isActive ? "#3B82F6" : "#6B7280"}}>
             {item.title}
         </Text>
     </Pressable>
@@ -36,11 +38,9 @@ const styles = StyleSheet.create({
         width: '20%',
         alignItems: "center",
         display: "flex",
-
     },
-    text:{
-        marginTop: 1,
-    }
 })
 
 export default NavItem
+
+//className={`text-sm ${isActive ? 'text-blue-500' : 'text-gray-500'}`}

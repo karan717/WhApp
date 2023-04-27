@@ -7,12 +7,12 @@ interface IButton{
     colors?: [string,string]
 
 }
-const Button:FC<IButton> = ({onPress,title,colors=['bg-yelllow-300','#FBBF24']}) => {
+const Button:FC<IButton> = ({onPress,title,colors=['#FCD34D','#FBBF24']}) => {
   return (
     <TouchableHighlight 
     onPress={onPress} 
     underlayColor={colors[1]}
-    style={textStyles.buttonStyle}
+    style={{...textStyles.buttonStyle,backgroundColor: colors[0]}}
     >
         <Text style={textStyles.buttonText}>
             {title}

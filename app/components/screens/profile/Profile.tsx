@@ -96,10 +96,10 @@ const Profile:FC = () => {
 
 
           <Button onPress={updateProfile} title='Update Profile'
-          colors={['bg-yelllow-300','#FBBF24']}/>
+          colors={['#FCD34D','#FBBF24']}/>
           <View className={Platform.OS === "ios"?'pb-20':''}>
           <Button onPress={logout} title='Logout'
-          colors={['bg-gray-200','#D6D8DB']}/>
+          colors={['#E5E7EB','#D6D8DB']}/>
           </View>
         </>}
       </ScrollView>

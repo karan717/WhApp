@@ -5,6 +5,7 @@ import { verticalScale, horizontalScale, moderateScale } from "./Metrics"
 const guidelineBaseWidth = 375;//375
 const guidelineBaseHeight = 812;//812
 
+//Style for main Layout of the app (backgroundColor white, otherwise it is default grey)
 export const layoutStyle = EStyleSheet.create({
     container:{
         paddingTop: verticalScale(1)*50,
@@ -15,6 +16,7 @@ export const layoutStyle = EStyleSheet.create({
 })
 
 
+//Styles for Auth Page
 //Choose the shorter side of the screen
 let logoSize = verticalScale(1)>horizontalScale(1)?horizontalScale(1):verticalScale(1);
 export const authStyle = EStyleSheet.create({
@@ -47,6 +49,30 @@ export const authStyle = EStyleSheet.create({
     pressableStyle:{
         marginLeft: 'auto',
     },
+})
+//Style for Footer
+export const footerStyles = EStyleSheet.create({
+    footerContainer:{
+        paddingLeft: 5*moderateScale(1),
+        paddingRight: 5*moderateScale(1),
+        paddingTop: 20*verticalScale(1),
+        paddingBottom: 20*verticalScale(1),
+        backgroundColor: "#F9FAFB",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
+        borderTopColor: '#E1E1E1',
+        borderTopWidth: 1*verticalScale(1),
+    },
+    footerText:{
+        //color: "#3B82F6", blue
+        //color: "#6B7280", gray
+        fontSize:`${0.875*moderateScale(1)}rem`,
+        lineHeight: `${1.25*moderateScale(1)}rem`,
+
+    }
 })
 
 //Styles for all texts in route page
