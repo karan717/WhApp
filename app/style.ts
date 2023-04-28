@@ -4,8 +4,12 @@ import { verticalScale, horizontalScale, moderateScale } from "./Metrics"
 
 const guidelineBaseWidth = 375;//375
 const guidelineBaseHeight = 812;//812
+const BLUE_TEXT_COLOR = "#1F2937";//#1F2937
+export const YELLOW_BUTTON_COLOR = "#FCD34D";//#FCD34D
+export const PRESSED_YELLOW_BUTTON_COLOR = "#FBBF24"
 
-//Style for main Layout of the app (backgroundColor white, otherwise it is default grey)
+/*Style for main Layout of the app (backgroundColor white, otherwise it is default grey) */
+
 export const layoutStyle = EStyleSheet.create({
     container:{
         paddingTop: verticalScale(1)*50,
@@ -108,17 +112,35 @@ export const homeStyles = EStyleSheet.create({
         fontSize: 25*moderateScale(1),
         textAlign: 'center',
         margin: 10,
-        color: "#1F2937",
+        color: BLUE_TEXT_COLOR,
       },
     separator: {
         marginVertical: 15*verticalScale(1),
-        borderBottomColor: '#1F2937',
+        borderBottomColor: BLUE_TEXT_COLOR,
         borderBottomWidth: StyleSheet.hairlineWidth,
       },
 
 })
 
 /* Style for Profile page */
+export const profileStyles = EStyleSheet.create({
+    isSuccessContainer: {
+        padding: `${0.75*moderateScale(1)}rem`,
+        paddingTop: `${0.5*moderateScale(1)}rem`,
+        paddingBottom: `${0.5*moderateScale(1)}rem`,
+        backgroundColor: "#10B981",
+        borderRadius: "0.5rem",
+    },
+    isSuccessText: {
+        color: "#ffffff",
+        textAlign: "center",
+        fontSize:`${0.9*moderateScale(1)}rem`
+    },
+    scrollViewContainer: {
+        paddingLeft: `${horizontalScale(1)>1.5 ? 2*horizontalScale(1):1*horizontalScale(1)}rem`,
+        paddingRight: `${horizontalScale(1)>1.5 ? 2*horizontalScale(1):1*horizontalScale(1)}rem`,        
+    },
+})
 
 /*   Styles for Route page  */
 
@@ -126,11 +148,24 @@ export const routeStyles = EStyleSheet.create({
 
 })
 
+/*   Styles for Charging page  */
+
+export const chargingStyles = EStyleSheet.create({
+
+})
+
+/*   Styles for About page  */
+
+export const aboutStyles = EStyleSheet.create({
+
+})
+
+
 /*   Styles for all texts, input fields, and buttons, avatar in the app (ui folder)   */
 
 export const textStyles = EStyleSheet.create({ 
     headingText:{
-        color: "#1F2937",
+        color: BLUE_TEXT_COLOR,
         fontSize: `${1.875*moderateScale(1)}rem`,
         lineHeight: `${2.25*moderateScale(1)}rem`,
         fontWeight: "700",
@@ -149,7 +184,7 @@ export const textStyles = EStyleSheet.create({
     },
     fieldTitle:{
         paddingTop: `${0.25*moderateScale(1)}rem`,
-        color: "#1F2937",
+        color: BLUE_TEXT_COLOR,
         fontSize: `${1.25*moderateScale(1)}rem`,
         lineHeight: `${1.75*moderateScale(1)}rem`,
         flexDirection: "row",
@@ -157,7 +192,7 @@ export const textStyles = EStyleSheet.create({
     },
     smallText:{
         paddingTop: `${0.25*moderateScale(1)}rem`,
-        color: "#1F2937",
+        color: BLUE_TEXT_COLOR,
         fontSize: `${1.25*moderateScale(1)}rem`,
         lineHeight: `${1.75*moderateScale(1)}rem`,
         flexDirection: "row",
@@ -165,7 +200,7 @@ export const textStyles = EStyleSheet.create({
 
     },
     largeText:{
-        color: "#1F2937",
+        color: BLUE_TEXT_COLOR,
         fontSize: `${1.5*moderateScale(1)}rem`,
         lineHeight: `${2*moderateScale(1)}rem`,
         fontWeight: "700",
@@ -175,13 +210,13 @@ export const textStyles = EStyleSheet.create({
         paddingBottom: `${0.5*moderateScale(1)}rem`,
         marginTop: `${1*moderateScale(1)}rem`,
         marginBottom: `${1*moderateScale(1)}rem`,
-        backgroundColor: "#FCD34D",
-        color: "#1F2937",
+        backgroundColor: YELLOW_BUTTON_COLOR,
+        color: BLUE_TEXT_COLOR,
         width: "100%",
         borderRadius: "0.75rem",        
     },
     buttonText:{
-        color: "#1F2937",
+        color: BLUE_TEXT_COLOR,
         fontSize: `${1.5*moderateScale(1)}rem`,
         lineHeight: `${2*moderateScale(1)}rem`,
         textAlign: "center",        

@@ -1,13 +1,14 @@
 import { Text, TouchableHighlight } from 'react-native'
 import React, { FC } from 'react'
-import { textStyles } from '../../style'
+import { PRESSED_YELLOW_BUTTON_COLOR, textStyles, YELLOW_BUTTON_COLOR } from '../../style'
+
 interface IButton{
     onPress: () => void
     title: string
     colors?: [string,string]
 
 }
-const Button:FC<IButton> = ({onPress,title,colors=['#FCD34D','#FBBF24']}) => {
+const Button:FC<IButton> = ({onPress,title,colors=[YELLOW_BUTTON_COLOR,PRESSED_YELLOW_BUTTON_COLOR]}) => {
   return (
     <TouchableHighlight 
     onPress={onPress} 

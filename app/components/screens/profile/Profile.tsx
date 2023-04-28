@@ -12,7 +12,8 @@ import { useNavigation } from '@react-navigation/native'
 import Entypo from 'react-native-vector-icons/Entypo'
 import FieldTitle from '../../ui/FieldTitle'
 import LargeText from '../../ui/LargeText'
-import { moderateScale } from '../../../Metrics'
+import { verticalScale, moderateScale } from '../../../Metrics'
+import { profileStyles } from '../../../style'
 
 const Profile:FC = () => {
   const {logout} = useAuth()
@@ -41,68 +42,91 @@ const Profile:FC = () => {
 
         <Heading text='Profile' isCenter={true}/>
       </View>
+
       <KeyboardAvoidingView 
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={10}
+      //keyboardVerticalOffset={10}
       enabled={Platform.OS === "ios"} //disable this feature for android
       >
 
-      <ScrollView className='px-4' keyboardDismissMode="on-drag">
-        {isSuccess && (
-          <View className='bg-green-500 p-3 py-2 rounded-lg'>
-            <Text className='text-white text-center'>
-              Profile Updated Successfully
-            </Text>
-          </View>
-        )}
-        {(isProfileLoading || isLoading) ? <Loader/> : <>
+        <ScrollView contentContainerStyle={profileStyles.scrollViewContainer} keyboardDismissMode="on-drag">
 
-        <FieldTitle name="First Name"/>
-          <Field onChange={setName} val={name} 
-          placeholder='First Name' />
+          {isSuccess && 
+            <View style={profileStyles.isSuccessContainer}>
+              <Text style={profileStyles.isSuccessText}>
+                Profile Updated Successfully
+              </Text>
+            </View>
+          }
 
-        <FieldTitle name="Last Name"/>
-          <Field onChange={setSurname} val={surname} 
-          placeholder='Last Name' />
+          {(isProfileLoading || isLoading) ? <Loader/> : 
+          <>
+            <FieldTitle name="First Name"/>
+            <Field onChange={setName} 
+            val={name} 
+            placeholder='First Name' 
+            />
 
-        <FieldTitle name="Wheelchair ID *"/>
-          <Field onChange={setWhID} val={WhID} 
-          placeholder='Wheelchair ID: 123456' isSecure={true} 
-          isNumeric={true} />
+            <FieldTitle name="Last Name"/>
+            <Field onChange={setSurname} 
+            val={surname} 
+            placeholder='Last Name' 
+            />
 
-        <FieldTitle name="Wheelchair Name"/>
-          <Field onChange={setWhName} val={whName} 
-          placeholder='Wheelchair Name' />
+            <FieldTitle name="Wheelchair ID *"/>
+            <Field onChange={setWhID} 
+            val={WhID} 
+            placeholder='Wheelchair ID: 123456' 
+            isSecure={true} 
+            isNumeric={true} 
+            />
 
-        <FieldTitle name="Wheelchair Model"/>
-          <Field onChange={setWhModel} val={whModel} 
-          placeholder='Enter wheelchair model' />
+            <FieldTitle name="Wheelchair Name"/>
+            <Field onChange={setWhName} 
+            val={whName} 
+            placeholder='Wheelchair Name' 
+            />
 
-        <FieldTitle name="Battery Voltage (Max.) *"/>
-          <Field onChange={setRVoltage} val={rVoltage} 
-          placeholder='Battery Voltage (Volts)'
-          isNumeric={true} />
+            <FieldTitle name="Wheelchair Model"/>
+            <Field onChange={setWhModel} 
+            val={whModel} 
+            placeholder='Enter wheelchair model' 
+            />
 
-        <FieldTitle name="Battery Current (Max.) *"/>
-          <Field onChange={setRCurrent} val={rCurrent} 
-          placeholder='Battery Current (Amps)' 
-          isNumeric={true} />
+            <FieldTitle name="Battery Voltage (Max.) *"/>
+            <Field onChange={setRVoltage} 
+            val={rVoltage} 
+            placeholder='Battery Voltage (Volts)'
+            isNumeric={true} 
+            />
 
-        <FieldTitle name="User Weight, lbs"/>
-          <Field onChange={setManWeight} val={manWeight} 
-          placeholder='User Weight (lbs)'
-          isNumeric={true} />
-        
+            <FieldTitle name="Battery Current (Max.) *"/>
+            <Field onChange={setRCurrent} 
+            val={rCurrent} 
+            placeholder='Battery Current (Amps)' 
+            isNumeric={true} 
+            />
 
+            <FieldTitle name="User Weight, lbs"/>
+            <Field onChange={setManWeight} 
+            val={manWeight} 
+            placeholder='User Weight (lbs)'
+            isNumeric={true} 
+            />
+            
+            <Button onPress={updateProfile} 
+            title='Update Profile'
+            />
 
-          <Button onPress={updateProfile} title='Update Profile'
-          colors={['#FCD34D','#FBBF24']}/>
-          <View className={Platform.OS === "ios"?'pb-20':''}>
-          <Button onPress={logout} title='Logout'
-          colors={['#E5E7EB','#D6D8DB']}/>
-          </View>
-        </>}
-      </ScrollView>
+            <View style={{paddingBottom: Platform.OS === "ios"? 90*Math.round(verticalScale(1)):0}}>
+              <Button onPress={logout} 
+              title='Logout'
+              colors={['#E5E7EB','#D6D8DB']}
+              />
+            </View>
+          </>
+          }
+        </ScrollView>
       </KeyboardAvoidingView>
     </Layout>
   )
