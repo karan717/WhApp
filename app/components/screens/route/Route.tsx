@@ -47,6 +47,8 @@ import WorkingItems from "./WorkingItems";
 import ScrollLayout from "./ScrollLayout";
 import DirectionsItems from "./DirectionsItems";
 import { useBLE } from "../../../hooks/useBLE";
+import { AVAILABLE_CHARGER_COLOR, BUSY_CHARGER_COLOR, CLOSED_PLACE_COLOR, routeStyles } from "../../../style";
+import { horizontalScale, moderateScale, verticalScale } from "../../../Metrics";
 
 interface Marker {
   latitude: number;
@@ -98,7 +100,7 @@ const Route: FC = () => {
   // ref for Bottom Sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
   // variables for points of snap of Bottom Sheet
-  const snapPoints = useMemo(() => ["18%", "25%", "60%"], []);
+  const snapPoints = useMemo(() => [`${20-moderateScale(1)*4}%`, `${40-moderateScale(1)*4}%`, "60%"], []);
 
   // callbacks for Bottom Sheet
   const handleSheetChanges = useCallback((index: number) => {
@@ -275,11 +277,11 @@ const Route: FC = () => {
   }, [markerBRef, distance, profile]);
 
   return (
-    <View style={styles.container}>
+    <View style={routeStyles.container}>
       <MapView
         provider={PROVIDER_GOOGLE} // remove if not using Google Maps
         //region={state.region}
-        style={styles.map}
+        style={routeStyles.map}
         initialRegion={{
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude,
@@ -301,12 +303,6 @@ const Route: FC = () => {
             latitude: e.nativeEvent.coordinate.latitude,
             longitude: e.nativeEvent.coordinate.longitude,
           });
-
-          // let chrgMatch = chargers.map((item:any)=>{
-          //   let matching = parseFloat(item.data.location.lat)===e.nativeEvent.coordinate.latitude && parseFloat(item.data.location.lng)===e.nativeEvent.coordinate.longitude;
-          //   return matching;
-          // })
-          // console.log('Old Match',chrgMatch)
 
           // See if we pressed on Charger or the empty space around.
           let matchCharger = chargers.some((item: any) => {
@@ -409,14 +405,6 @@ const Route: FC = () => {
             //description={marker.description}
             ref={setMarkerBRef}
           >
-            {/* <Callout tooltip={true}>
-
-          <View style={styles.infoWindow}>       
-          <Text style={styles.infoText}>{distance} mi, {duration}min away</Text>
-          <Text style={styles.infoText}>{finalSoC}% battery remains</Text>
-          </View>
-
-          </Callout> */}
           </Marker>
         )}
         {/*Info window: https://github.com/react-native-maps/react-native-maps/issues/3267*/}
@@ -430,7 +418,7 @@ const Route: FC = () => {
                 latitude: parseFloat(item.data.location.lat),
                 longitude: parseFloat(item.data.location.lng),
               }}
-              pinColor={item.data.state === "1" ? "#299617" : "#FF0000"}
+              pinColor={item.data.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR}
               onPress={(e) => {
                 setMarkerB({
                   latitude: e.nativeEvent.coordinate.latitude,
@@ -451,25 +439,15 @@ const Route: FC = () => {
                 name={"charging-station"}
                 color={"#000000"}
                 style={{ position: "absolute" }}
-                size={41.5}
+                size={31.5*moderateScale(1)} //41.5
               />
               <FontAwesome5
                 name={"charging-station"}
-                color={item.data.state === "1" ? "#029F0F" : "#F6DE16"}
+                color={item.data.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR}
                 style={{ position: "absolute" }}
                 //style={{ borderWidth: 1, borderColor: '#000000' }}
-                size={40}
+                size={30*moderateScale(1)} //40 previously
               />
-              {/*#299617 */}
-              {/*           
-           <Callout tooltip={true}>
-
-            <View style={styles.infoWindow}>       
-            <Text style={styles.infoText}>{distance} mi, {duration}min away</Text>
-            <Text style={styles.infoText}>{finalSoC}% battery remains</Text>
-            </View>
-            
-          </Callout> */}
             </Marker>
           ))}
       </MapView>
@@ -483,9 +461,9 @@ const Route: FC = () => {
           enablePoweredByContainer={false}
           styles={{
             textInput: {
-              height: 55,
+              height: 50*moderateScale(1),
               color: "#222222",
-              fontSize: 22,
+              fontSize: 20*moderateScale(1),
             },
             predefinedPlacesDescription: {
               color: "#1faadb",
@@ -530,9 +508,9 @@ const Route: FC = () => {
                 googlePlaceAutoCompleteRef.current !== null &&
                 googlePlaceAutoCompleteRef.current.clear()
               }
-              style={styles.containerClearButton}
+              style={routeStyles.containerClearButton}
             >
-              <Entypo name={"erase"} color={"#777777"} size={25} />
+              <Entypo name={"erase"} color={"#777777"} size={25*moderateScale(1)} />
             </TouchableOpacity>
           )}
         />
@@ -548,7 +526,7 @@ const Route: FC = () => {
           console.log(markerA)
         } } 
       />        */}
-      {profile._id !== undefined && ( //This line will remove errors with snapPoints being undefined
+      {profile._id !== undefined && ( //profile._id !== undefined: This line will remove errors with snapPoints being undefined
         // At first render, all states are null or undefined until they initialize,  we should wait for states,
         // for example profile._id is one of the state that will initialize at first
         //Address and cost
@@ -561,23 +539,23 @@ const Route: FC = () => {
         >
           <ScrollLayout isScrollView={true}>
             {pageState === "infoState" && (
-              <View style={styles.detailsContainer}>
+              <View style={routeStyles.detailsContainer}>
                 {detailState === "Dropped Pin" && (
                   <>
-                    <Text style={styles.nameText}>{"Dropped Pin"}</Text>
-                    <Text style={styles.statusText}>
+                    <Text style={routeStyles.nameText}>{"Dropped Pin"}</Text>
+                    <Text style={routeStyles.statusText}>
                       {markerB.latitude + "," + markerB.longitude}
                     </Text>
                   </>
                 )}
                 {detailState === "Charger" && chargerDetails !== undefined && (
                   <>
-                    <Text style={styles.nameText}>
+                    <Text style={routeStyles.nameText}>
                       {chargerDetails.chargerID !== undefined
                         ? "Charger #" + chargerDetails.chargerID
                         : "No Charger Name"}
                     </Text>
-                    <Text style={styles.nameText}>
+                    <Text style={routeStyles.nameText}>
                       {chargerDetails.name !== undefined
                         ? chargerDetails.name
                         : "No Charger Name"}
@@ -592,10 +570,10 @@ const Route: FC = () => {
                           style={{
                             color: `${
                               chargerDetails.opening_hours.open_now
-                                ? "#299617"
-                                : "#FF0000"
+                                ? AVAILABLE_CHARGER_COLOR
+                                : CLOSED_PLACE_COLOR
                             }`,
-                            fontSize: 16,
+                            ...routeStyles.statusText,
                           }}
                         >
                           {chargerDetails.opening_hours.open_now
@@ -606,25 +584,25 @@ const Route: FC = () => {
                     )}
 
                     <View className="flex-row">
-                      <Text style={styles.statusText}>{"Charger: "}</Text>
+                      <Text style={routeStyles.statusText}>{"Charger: "}</Text>
 
                       <FontAwesome5
                         name={"charging-station"}
                         color={
-                          chargerDetails.state === "1" ? "#029F0F" : "#F6DE16"
+                          chargerDetails.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR
                         }
                         //style={{ position: 'absolute' }}
                         //style={{ borderWidth: 1, borderColor: '#000000' }}
-                        size={16}
+                        size={16*moderateScale(1)}
                       />
 
                       <Text
                         style={{
                           color: `${
-                            chargerDetails.state === "1" ? "#299617" : "#F6DE16"
+                            chargerDetails.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR
                           }`,
-                          fontSize: 16,
                           fontWeight: "bold",
+                          ...routeStyles.statusText,
                         }}
                         //textShadowColor:'#000000', textShadowOffset:{width: 0.5, height: 0.5},textShadowRadius:1,
                       >
@@ -639,7 +617,7 @@ const Route: FC = () => {
 
                 {detailState === "Place" && placeDetails !== undefined && (
                   <>
-                    <Text style={styles.nameText}>
+                    <Text style={routeStyles.nameText}>
                       {placeDetails.name !== undefined
                         ? placeDetails.name
                         : "No Place Name"}
@@ -650,8 +628,8 @@ const Route: FC = () => {
                           style={{
                             color: `${
                               placeDetails.opening_hours.open_now
-                                ? "#299617"
-                                : "#FF0000"
+                                ? AVAILABLE_CHARGER_COLOR
+                                : CLOSED_PLACE_COLOR
                             }`,
                           }}
                         >
@@ -664,7 +642,7 @@ const Route: FC = () => {
                   </>
                 )}
 
-                <View style={styles.buttonContainer}>
+                <View style={routeStyles.buttonContainer}>
                   <Button
                     title={"Directions"}
                     onPress={() => {
@@ -681,7 +659,7 @@ const Route: FC = () => {
                   chargerDetails !== undefined &&
                   chargerDetails.formatted_address !== undefined && (
                     <>
-                      <Text style={styles.workingHoursText}>
+                      <Text style={routeStyles.infoTitleText}>
                         {"Address:" + " " + chargerDetails.formatted_address}
                       </Text>
                     </>
@@ -691,10 +669,10 @@ const Route: FC = () => {
                   chargerDetails !== undefined &&
                   chargerDetails.opening_hours !== undefined && (
                     <>
-                      <Text style={styles.workingHoursText}>
+                      <Text style={routeStyles.infoTitleText}>
                         {"Working Hours:"}
                       </Text>
-                      <View style={styles.workingHourContainer}>
+                      <View style={routeStyles.infoListContainer}>
                         {chargerDetails.opening_hours.weekday_text.map(
                           (days: any) => {
                             const inpArray = days.split("y");
@@ -714,7 +692,7 @@ const Route: FC = () => {
                   placeDetails !== undefined &&
                   placeDetails.formatted_address !== undefined && (
                     <>
-                      <Text style={styles.workingHoursText}>
+                      <Text style={routeStyles.infoTitleText}>
                         {"Address:" + " " + placeDetails.formatted_address}
                       </Text>
                     </>
@@ -724,10 +702,10 @@ const Route: FC = () => {
                   placeDetails !== undefined &&
                   placeDetails.opening_hours !== undefined && (
                     <>
-                      <Text style={styles.workingHoursText}>
+                      <Text style={routeStyles.infoTitleText}>
                         {"Working Hours:"}
                       </Text>
-                      <View style={styles.workingHourContainer}>
+                      <View style={routeStyles.infoListContainer}>
                         {placeDetails.opening_hours.weekday_text.map(
                           (days: any) => {
                             const inpArray = days.split("y");
@@ -746,7 +724,7 @@ const Route: FC = () => {
             )}
 
             {pageState === "routeState" && showPolyline && (
-              <View style={styles.workingHourContainer}>
+              <View style={routeStyles.infoListContainer}>
                 <DirectionsItems
                   input={["Travel distance*:", `${distance} mi.`]}
                 />
@@ -774,105 +752,4 @@ const Route: FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  theme: {
-    height: 100,
-    width: 400,
-  },
-  infoWindow: {
-    borderRadius: 10,
-    margin: 2,
-    color: "#000",
-    borderColor: "#666",
-    backgroundColor: "#FFF",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-  },
-  infoText: {
-    fontSize: 16,
-    padding: 5,
-  },
-  text: {
-    fontSize: 22,
-    textAlign: "center",
-    margin: 3,
-    paddingBottom: 80,
-    color: "#1F2937",
-  },
-  detailsContainer: {
-    paddingHorizontal: 15,
-  },
-  buttonContainer: {
-    paddingHorizontal: 70,
-  },
-  nameText: {
-    fontSize: 22,
-    fontWeight: "400",
-  },
-  workingHoursText: {
-    fontSize: 17,
-    fontWeight: "400",
-    marginBottom: 10,
-  },
-  workingHourContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "flex-start",
-  },
-  statusText: {
-    fontSize: 16,
-  },
-  containerClearButton: {
-    position: "absolute",
-    left: "85%",
-    alignItems: "flex-end",
-    marginTop: 15,
-    paddingRight: 10,
-    width: "15%",
-  },
-  textshadow: {
-    fontSize: 100,
-    color: "#FFFFFF",
-    fontFamily: "Times New Roman",
-    paddingLeft: 30,
-    paddingRight: 30,
-    textShadowColor: "#585858",
-    textShadowOffset: { width: 5, height: 5 },
-    textShadowRadius: 10,
-  },
-  directionsText: {
-    fontSize: 22,
-    fontWeight: "400",
-    paddingBottom: 2,
-  },
-});
-
 export default Route;
-
-//The very first search bar
-{
-  /* <TextInput
-style={{
-  borderRadius: 10,
-  margin: 10,
-  color: '#000',
-  borderColor: '#666',
-  backgroundColor: '#FFF',
-  borderWidth: 1,
-  height: 45,
-  paddingHorizontal: 10,
-  fontSize: 18,
-}}
-placeholder={'Search'}
-placeholderTextColor={'#666'}
-/> */
-}

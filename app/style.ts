@@ -4,9 +4,15 @@ import { verticalScale, horizontalScale, moderateScale } from "./Metrics";
 
 const guidelineBaseWidth = 375; //375
 const guidelineBaseHeight = 812; //812
-const BLUE_TEXT_COLOR = "#1F2937"; //#1F2937
-export const YELLOW_BUTTON_COLOR = "#FCD34D"; //#FCD34D
-export const PRESSED_YELLOW_BUTTON_COLOR = "#FBBF24";
+
+/* Colors */
+
+const BLUE_TEXT_COLOR = "#1F2937"; //#1F2937, main Text color
+export const YELLOW_BUTTON_COLOR = "#FCD34D"; //#FCD34D, main button color
+export const PRESSED_YELLOW_BUTTON_COLOR = "#FBBF24"; //main button pressed color
+export const AVAILABLE_CHARGER_COLOR = "#029F0F"; //#029F0F  #299617main charger vector color
+export const BUSY_CHARGER_COLOR = "#F6DE16"; //color of the charger vector and texts (yellow)
+export const CLOSED_PLACE_COLOR = "#FF0000"; //Color of the text writing closed (red)
 
 /*Style for main Layout of the app (backgroundColor white, otherwise it is default grey) */
 
@@ -151,7 +157,49 @@ export const profileStyles = EStyleSheet.create({
 
 /*   Styles for Route page  */
 
-export const routeStyles = EStyleSheet.create({});
+export const routeStyles = EStyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  containerClearButton: {
+    position: "absolute",
+    left: `${87+horizontalScale(1)*2}%`,
+    alignItems: "flex-end",
+    marginTop: 15*moderateScale(1),
+    paddingRight: 10*moderateScale(1),
+    width: `${13-horizontalScale(1)*2}%`,
+    //borderWidth:0.5,
+  },
+  detailsContainer: {
+    paddingHorizontal: 15*horizontalScale(1),
+  },
+  buttonContainer: {
+    paddingHorizontal: 70*horizontalScale(1),
+  },
+  nameText: {
+    fontSize: 20*moderateScale(1),
+    fontWeight: "400",
+  },
+  infoTitleText: {
+    fontSize: 17*moderateScale(1),
+    fontWeight: "400",
+    marginBottom: 10,
+  },
+  infoListContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "flex-start",
+  },
+  statusText: {
+    fontSize: 16*moderateScale(1),
+  },
+});
 
 /*   Styles for Charging page  */
 
