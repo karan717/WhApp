@@ -1,12 +1,12 @@
-import { View, Text } from 'react-native'
-import React, {FC} from 'react'
+import { View, Text } from "react-native";
+import React, { FC } from "react";
 
-const About:FC = () => {
+const About: FC = () => {
   return (
     <View>
-      <Text className='text-2xl text-center pt-40'>About</Text>
+      <Text className="text-2xl text-center pt-40">About</Text>
     </View>
-  )
-}
+  );
+};
 
-export default About
+export default About;

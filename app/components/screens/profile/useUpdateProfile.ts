@@ -1,51 +1,51 @@
-import React, { useState } from 'react'
-import { useAuth } from '../../../hooks/useAuth'
-import firestore from '@react-native-firebase/firestore'
-import { Alert } from 'react-native'
+import React, { useState } from "react";
+import { useAuth } from "../../../hooks/useAuth";
+import firestore from "@react-native-firebase/firestore";
+import { Alert } from "react-native";
 
+export const useUpdateProfile = (
+  name: string,
+  surname: string,
+  WhID: string,
+  whModel: string,
+  rVoltage: string,
+  rCurrent: string,
+  manWeight: string,
+  whName: string,
+  docId: string
+) => {
+  const { user } = useAuth();
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-export const useUpdateProfile = (name: string,surname:string,WhID:string,
-    whModel:string,rVoltage:string,rCurrent:string,manWeight:string, whName:string, docId:string) => {
-    const {user} = useAuth()
+  const updateProfile = async () => {
+    setIsLoading(true);
 
-    const [isLoading, setIsLoading] = useState(false)
-    const [isSuccess, setIsSuccess] = useState(false)
+    if (!user) return;
 
-    const updateProfile = async () => {
-        setIsLoading(true)
+    try {
+      await firestore().collection("users").doc(docId).update({
+        displayName: name,
+        displaySurname: surname,
+        displayWhID: WhID,
+        displayWhModel: whModel,
+        displayRVoltage: rVoltage,
+        displayRCurrent: rCurrent,
+        displayManWeight: manWeight,
+        displayWhName: whName,
+      });
 
-        if(!user) return
+      setIsSuccess(true);
 
-        try {
-            await firestore().collection('users').doc(docId).update({
-                displayName: name,
-                displaySurname: surname,
-                displayWhID:WhID,
-                displayWhModel: whModel,
-                displayRVoltage: rVoltage,
-                displayRCurrent: rCurrent,
-                displayManWeight: manWeight,
-                displayWhName: whName,
-            })
-
-            setIsSuccess(true)
-            
-            setTimeout(() => {
-                setIsLoading(false)
-
-            },3000)
-            
-        } catch (error:any) {
-            Alert.alert('Error update profile',error.message)
-            
-        } finally {
-            setIsLoading(false)
-        }
-
-
-        
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 3000);
+    } catch (error: any) {
+      Alert.alert("Error update profile", error.message);
+    } finally {
+      setIsLoading(false);
     }
-    return {isLoading,updateProfile,isSuccess}
-
-}
+  };
+  return { isLoading, updateProfile, isSuccess };
+};
