@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import EStyleSheet from "react-native-extended-stylesheet";
 import { verticalScale, horizontalScale, moderateScale } from "./Metrics";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const guidelineBaseWidth = 375; //375
 const guidelineBaseHeight = 812; //812
@@ -203,7 +204,71 @@ export const routeStyles = EStyleSheet.create({
 
 /*   Styles for Charging page  */
 
-export const chargingStyles = EStyleSheet.create({});
+const boxShadow = {
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+};
+
+export const chargingStyles = EStyleSheet.create({
+  // scrollViewContainer:{
+  //   flexGrow: 1,
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  // },
+  container: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    marginTop: 20*verticalScale(1),
+    paddingTop: 20*verticalScale(1),
+  },
+  peripheralName: {
+    fontSize: 20*moderateScale(1),
+    textAlign: "center",
+    padding: 5*moderateScale(1),
+  },
+  peripheralId: {
+    fontSize: 12*moderateScale(1),
+    textAlign: "center",
+    padding: 2*moderateScale(1),
+    paddingBottom: 20*moderateScale(1),
+  },
+  row: {
+    marginLeft: 10*horizontalScale(1),
+    marginRight: 10*horizontalScale(1),
+    borderRadius: 20,
+    ...boxShadow,
+  },
+  textBattery: {
+    fontSize: 25*moderateScale(1),
+    textAlign: "center",
+    margin: 10*moderateScale(1),
+    color: "#1F2937",
+  },
+  textBattery2: {
+    fontSize: 20*moderateScale(1),
+    textAlign: "center",
+    margin: 10*moderateScale(1),
+    color: "#1F2937",
+  },
+  text: {
+    fontSize: 25*moderateScale(1),
+    textAlign: "center",
+    margin: 10*moderateScale(1),
+    color: "#1F2937",
+  },
+  separator: {
+    marginVertical: 15*verticalScale(1),
+    borderBottomColor: "#1F2937",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+});
 
 /*   Styles for About page  */
 

@@ -35,8 +35,9 @@ import { Alert } from "react-native";
 import Button from "../../ui/Button";
 import { useBLE } from "../../../hooks/useBLE";
 import Loader from "../../ui/Loader";
+import { chargingStyles } from "../../../style";
 
-const Separator = () => <View style={styles.separator} />;
+const Separator = () => <View style={chargingStyles.separator} />;
 
 const BLECharging = () => {
   const {
@@ -57,11 +58,11 @@ const BLECharging = () => {
         underlayColor="#0082FC"
         onPress={() => togglePeripheralConnection(item)}
       >
-        <View style={[styles.row, { backgroundColor }]}>
-          <Text style={styles.peripheralName}>
+        <View style={[chargingStyles.row, { backgroundColor }]}>
+          <Text style={chargingStyles.peripheralName}>
             {item.advertising.localName} {item.connecting && "Connecting..."}
           </Text>
-          <Text style={styles.peripheralId}>{item.id}</Text>
+          <Text style={chargingStyles.peripheralId}>{item.id}</Text>
         </View>
       </TouchableHighlight>
     );
@@ -77,77 +78,79 @@ const BLECharging = () => {
       <StatusBar barStyle="dark-content" />
 
       <SafeAreaView>
-        <View style={styles.container}>
-          {Number(receivedBatteryLevel) === 0 && (
-            <>
-              <Text className="text-center text-gray-800 text-xl">
-                Wheelchair not found
-              </Text>
-              <View className="w-4/5">
-                <Separator />
-              </View>
-            </>
-          )}
+        <ScrollView>
+          <View style={chargingStyles.container}>
+            {Number(receivedBatteryLevel) === 0 && (
+              <>
+                <Text className="text-center text-gray-800 text-xl">
+                  Wheelchair not found
+                </Text>
+                <View className="w-4/5">
+                  <Separator />
+                </View>
+              </>
+            )}
 
-          {Number(receivedBatteryLevel) > 0 && (
-            <>
-              <Text style={styles.textBattery}>WC Battery Level</Text>
-              <Progress.Bar
-                progress={Number(receivedBatteryLevel) / 100}
-                width={180}
-                height={70}
-                color={getColor(1 - Number(receivedBatteryLevel) / 100)}
-                borderWidth={1}
-                borderColor="#000000"
+            {Number(receivedBatteryLevel) > 0 && (
+              <>
+                <Text style={chargingStyles.textBattery}>WC Battery Level</Text>
+                <Progress.Bar
+                  progress={Number(receivedBatteryLevel) / 100}
+                  width={180}
+                  height={70}
+                  color={getColor(1 - Number(receivedBatteryLevel) / 100)}
+                  borderWidth={1}
+                  borderColor="#000000"
+                />
+                <Text style={chargingStyles.text}>
+                  {Number(receivedBatteryLevel) + "%"}
+                </Text>
+                <View className="w-4/5">
+                  <Separator />
+                </View>
+              </>
+            )}
+
+            {/* <Text className='text-2xl text-center pt-1'>Scan for Chargers</Text> */}
+
+            <View style={{ margin: 5, width: "80%" }}>
+              {isScanning && <Loader />}
+              <Button
+                title={isScanning ? "Searching..." : "Search for Chargers"}
+                onPress={() => startScan()}
               />
-              <Text style={styles.text}>
-                {Number(receivedBatteryLevel) + "%"}
-              </Text>
-              <View className="w-4/5">
-                <Separator />
-              </View>
-            </>
-          )}
+              <Separator />
+            </View>
 
-          {/* <Text className='text-2xl text-center pt-1'>Scan for Chargers</Text> */}
-
-          <View style={{ margin: 5, width: "80%" }}>
-            {isScanning && <Loader />}
-            <Button
-              title={isScanning ? "Searching..." : "Search for Chargers"}
-              onPress={() => startScan()}
-            />
-            <Separator />
+            {/* Chargers should be sorted by RSSI https://javascript.plainenglish.io/how-to-sort-a-map-in-javascript-es6-59751f06f692   */}
+            <Text style={chargingStyles.textBattery}>Chargers</Text>
+            {new Map(
+              [...peripherals].filter(
+                ([k, v]) =>
+                  k !== (whPeripheral !== undefined ? whPeripheral.id : "LOL")
+              )
+            ).size !== 0 ? (
+              <FlatList
+                data={
+                  whPeripheral !== undefined
+                    ? Array.from(
+                        new Map(
+                          [...peripherals].filter(
+                            ([k, v]) => k !== whPeripheral.id
+                          )
+                        ).values()
+                      )
+                    : Array.from(peripherals.values())
+                }
+                contentContainerStyle={{ rowGap: 12, padding: 10 }}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+              />
+            ) : (
+              <Text style={chargingStyles.textBattery2}>Chargers not found</Text>
+            )}
           </View>
-
-          {/* Chargers should be sorted by RSSI https://javascript.plainenglish.io/how-to-sort-a-map-in-javascript-es6-59751f06f692   */}
-          <Text style={styles.textBattery}>Chargers</Text>
-          {new Map(
-            [...peripherals].filter(
-              ([k, v]) =>
-                k !== (whPeripheral !== undefined ? whPeripheral.id : "LOL")
-            )
-          ).size !== 0 ? (
-            <FlatList
-              data={
-                whPeripheral !== undefined
-                  ? Array.from(
-                      new Map(
-                        [...peripherals].filter(
-                          ([k, v]) => k !== whPeripheral.id
-                        )
-                      ).values()
-                    )
-                  : Array.from(peripherals.values())
-              }
-              contentContainerStyle={{ rowGap: 12, padding: 10 }}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-            />
-          ) : (
-            <Text style={styles.textBattery2}>Chargers not found</Text>
-          )}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
