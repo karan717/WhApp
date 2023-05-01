@@ -1,6 +1,7 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
+import { moderateScale } from "../../../Metrics";
 
 const WorkingItems = (props: any) => {
   return (
@@ -19,13 +20,13 @@ const WorkingItems = (props: any) => {
 
 const styles = StyleSheet.create({
   workingHoursText: {
-    fontSize: 17,
+    fontSize: 17*moderateScale(1),
     fontWeight: "400",
-    marginBottom: 10,
+    marginBottom: 10*moderateScale(1),
   },
   workingHourItem1: {
     width: "50%",
-    paddingLeft: 30,
+    paddingLeft: 30*moderateScale(1),
   },
   workingHourItem2: {
     width: "50%",
