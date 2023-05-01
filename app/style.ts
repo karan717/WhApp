@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import EStyleSheet from "react-native-extended-stylesheet";
 import { verticalScale, horizontalScale, moderateScale } from "./Metrics";
 import { Colors } from "react-native/Libraries/NewAppScreen";
@@ -216,11 +216,6 @@ const boxShadow = {
 };
 
 export const chargingStyles = EStyleSheet.create({
-  // scrollViewContainer:{
-  //   flexGrow: 1,
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  // },
   container: {
     justifyContent: "center",
     alignItems: "center",
@@ -272,7 +267,57 @@ export const chargingStyles = EStyleSheet.create({
 
 /*   Styles for About page  */
 
-export const aboutStyles = EStyleSheet.create({});
+export const aboutStyles = EStyleSheet.create({
+  pageTitle: {
+    paddingTop: 10*moderateScale(1),
+    fontSize: 20*moderateScale(1),
+    lineHeight: 25*moderateScale(1),
+    textAlign: "center",
+  },
+  cardContainer: {
+    justifyContent:"center",
+    alignItems:"center",
+    marginTop: 25*verticalScale(1),
+
+  },
+  customCard: {
+    width:"90%",
+    //justifyContent:"center",
+    //borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: "#e0dee0", //YELLOW_BUTTON_COLOR,//"#e0dee0", //"#F3F4F6"
+    shadowColor: Colors.SHADOW_COLOR,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    //marginBottom: 15*moderateScale(1),
+  },
+  cardRow1: {
+    //borderWidth:1,
+    width: "70%",
+  },
+  cardText: {
+    padding: 10*moderateScale(1),
+    fontSize: 20*moderateScale(1),
+    lineHeight: 25*moderateScale(1),
+    textAlign: "left",    
+  },
+  cardRow2: {
+    //borderWidth:1,
+    width: "30%",
+  },
+  showMoreText: {
+    padding: 5*moderateScale(1),
+    fontSize: 15*moderateScale(1),
+    lineHeight: 20*moderateScale(1),
+    textAlign: "right",
+    textDecorationLine: 'underline',    
+  },
+  moreInfoContainer: {
+    width:"90%",
+    backgroundColor: "white",
+    padding:10*moderateScale(1),
+  }
+});
 
 /*   Styles for all texts, input fields, and buttons, avatar in the app (ui folder)   */
 

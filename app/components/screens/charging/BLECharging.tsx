@@ -78,7 +78,7 @@ const BLECharging = () => {
       <StatusBar barStyle="dark-content" />
 
       <SafeAreaView>
-        <ScrollView>
+        
           <View style={chargingStyles.container}>
             {Number(receivedBatteryLevel) === 0 && (
               <>
@@ -150,7 +150,7 @@ const BLECharging = () => {
               <Text style={chargingStyles.textBattery2}>Chargers not found</Text>
             )}
           </View>
-        </ScrollView>
+        
       </SafeAreaView>
     </>
   );

@@ -100,7 +100,7 @@ const Route: FC = () => {
   // ref for Bottom Sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
   // variables for points of snap of Bottom Sheet
-  const snapPoints = useMemo(() => [`${20-moderateScale(1)*4}%`, `${40-moderateScale(1)*4}%`, "60%"], []);
+  const snapPoints = useMemo(() => [`${25-moderateScale(1)*4}%`, `${40-moderateScale(1)*4}%`, "60%"], []);
 
   // callbacks for Bottom Sheet
   const handleSheetChanges = useCallback((index: number) => {
