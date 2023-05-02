@@ -64,6 +64,20 @@ export const BLEProvider: FC<Props> =  ({children})  => {
     whPeripheralRef.current = newWhPeripheral;
     setWhPeripheral(newWhPeripheral);
   }
+  //Obtaining the latest rCurrent and rVoltage from the Database
+  const [rCurrnet, setRCurrent] = useState('');
+  const [rVoltage, setRVoltage] = useState('');
+
+  const rCurrentRef = useRef<string>(rCurrnet);
+  const rVoltageRef = useRef<string>(rVoltage);
+
+  const _setRParams = (newRCurrent:string, newRVoltage:string) =>{
+    rCurrentRef.current = newRCurrent;
+    rVoltageRef.current = newRVoltage;
+    setRCurrent(newRCurrent);
+    setRVoltage(newRVoltage);
+  }
+
   //Obtaining the latest Wheelchair ID from the Database
   const [WhID, setWhID] = useState('');
 
@@ -217,8 +231,17 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       setIsConnected(false)
       console.log('toggle disconnect')
     } else {
-      connectPeripheral(peripheral);
-      console.log('toggle connect')              
+      if(whPeripheral===undefined || peripheral.id!==whPeripheral.id){
+        if(parseInt(rCurrentRef.current)&&parseInt(rVoltageRef.current)){
+          connectPeripheral(peripheral);
+          console.log('toggle connect') 
+        }else{
+          Alert.alert("Rated Voltage or Current is not given")
+        }
+      }else{
+        connectPeripheral(peripheral);
+        console.log('toggle connect')   
+      }           
     }
   };
 
@@ -239,7 +262,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         await BleManager.startNotification(peripheralUUID, service, characteristic).then(()=>{
           //If peripheral is connecting to the charger (Not Wheelchair)
           if(whPeripheral===undefined || peripheral.id!==whPeripheral.id){
-            sendDataRPi(`${WhIDRef.current}:9:29:22:@`,peripheral)
+            sendDataRPi(`${WhIDRef.current}:${rCurrentRef.current}:${rVoltageRef.current}:10:@`,peripheral)
           }
           //If peripheral is connecting to Wheelchair, immediately request for Battery Level
           if(whPeripheral!==undefined && peripheral.id===whPeripheral.id){
@@ -341,6 +364,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
             console.log('whPeripheralRef is undefined')
           }
           _setWhID(profile.displayWhID)
+          _setRParams(profile.displayRCurrent, profile.displayRVoltage)
           console.log('succesfully updated',profile.displayWhID)
       }
       )
