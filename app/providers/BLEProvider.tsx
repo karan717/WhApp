@@ -67,6 +67,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
   //Obtaining the latest Wheelchair ID from the Database
   const [WhID, setWhID] = useState('');
 
+
   const WhIDRef = useRef<string>(WhID);
   const _setWhID = (newWhID:string) =>{
     WhIDRef.current = newWhID;
@@ -133,7 +134,16 @@ export const BLEProvider: FC<Props> =  ({children})  => {
     //differentiate between message from wheelchair and charger
     console.log('received msg',outData)
     if(whPeripheral!==undefined && data.peripheral==whPeripheral.id){
-      setReceivedBatteryLevel(outData)
+      if(outData === 'Uploaded'){
+        Alert.alert('Data is successfully uploaded')
+      }
+      if(outData === 'Not uploaded'){
+        Alert.alert('Data is not uploaded! Try later.')
+      }
+      const isNum = !isNaN(parseInt(outData));
+      if(isNum){
+        setReceivedBatteryLevel(outData)
+      }
     }else{
       setReceivedData(outData) //message from charger
       //charger is busy, disconnected
@@ -208,7 +218,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       console.log('toggle disconnect')
     } else {
       connectPeripheral(peripheral);
-      console.log('toggle connect')
+      console.log('toggle connect')              
     }
   };
 
@@ -246,7 +256,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         // //If peripheral is connecting to Wheelchair, immediately request for Battery Level
         // if(whPeripheral!==undefined && peripheral.id===whPeripheral.id){
         //   await sendDataRPi(`Battery Level`,peripheral)
-        // }
+        // }mongodb+srv://wheelchair:wheelchair@cluster0.pywpd.mongodb.net/test
 
       }
       
@@ -333,10 +343,10 @@ export const BLEProvider: FC<Props> =  ({children})  => {
           _setWhID(profile.displayWhID)
           console.log('succesfully updated',profile.displayWhID)
       }
-  )
-  } catch(error){
-      console.log(error)
-  }
+      )
+    } catch(error){
+        console.log(error)
+    }
 
 
     const listeners = [

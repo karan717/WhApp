@@ -169,7 +169,7 @@ const Route: FC = () => {
       .then(function (response: any) {
         //console.log(JSON.stringify(response.data.results));
         setElevation(response.data.results);
-        uploadPath(response.data.results, profile.docId);
+        uploadPath(response.data.results);
         //console.log('Path:',path)
         //console.log('Elevation:',elevation)
       })

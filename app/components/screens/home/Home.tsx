@@ -18,6 +18,7 @@ import Loader from "../../ui/Loader";
 import Button from "../../ui/Button";
 import { homeStyles } from "../../../style";
 import SmallText from "../../ui/SmallText";
+import { useAuth } from "../../../hooks/useAuth";
 
 //#08F26E #86DC3D #5BC236
 //<Text className='text-2xl text-center pt-40'>Home</Text>
@@ -25,6 +26,7 @@ import SmallText from "../../ui/SmallText";
 const Separator = () => <View style={homeStyles.separator} />;
 
 const Home: FC = (props) => {
+  const { user } = useAuth(); //user.uid for data upload
   const { navigate } = useNavigation();
   const {
     isScanning,
@@ -95,7 +97,13 @@ const Home: FC = (props) => {
         },
         {
           text: "Ok",
-          onPress: () => Alert.alert("The data is uploaded"),
+          onPress: () => {
+            if (whPeripheral!==undefined) {
+            sendDataRPi(`Upload_${user?.uid}_Stop`,whPeripheral)
+            }else{
+              Alert.alert("Wheelchair is not connected")
+            }
+          },
           style: "destructive",
         },
       ],

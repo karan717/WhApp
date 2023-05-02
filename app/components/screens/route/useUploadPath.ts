@@ -13,7 +13,7 @@ export const useUploadPath = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const { receivedBatteryLevel } = useBLE();
 
-  const uploadPath = async (elevations: any, docId: string) => {
+  const uploadPath = async (elevations: any) => {
     setIsLoading(true);
 
     if (!user) return;
