@@ -228,7 +228,7 @@ const Route: FC = () => {
       .collection("predictedSoC")
       .doc(profile._id)
       .onSnapshot((documentSnapshot) => {
-        console.log(
+        documentSnapshot.data()?.points!==undefined && console.log(
           "User data: ",
           documentSnapshot.data()?.points[
             documentSnapshot.data()?.points.length - 1
@@ -236,7 +236,7 @@ const Route: FC = () => {
         );
         //setFinalSoC(documentSnapshot.data()?.points[documentSnapshot.data()?.points.length-1].SoC)
         //Check if path.length === documentSnapshot.data()?.points.length, so that we know that the data is updated
-        documentSnapshot.data()?.points[
+        documentSnapshot.data()?.points!==undefined && documentSnapshot.data()?.points[
           documentSnapshot.data()?.points.length - 1
         ].SoC !== undefined &&
           setFinalSoC(

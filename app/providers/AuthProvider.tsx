@@ -31,10 +31,19 @@ export const AuthProvider: FC<Props> =  ({children})  => {
         try{
             const {user} = await register(email, password)
             
-            //Create new user
-            await firestore().collection('users').add({
+            //Create new user document with the id as the user.uid, 
+            //and other paramaters set to empty string 
+            await firestore().collection('users').doc(user.uid).set({
                 _id: user.uid,
                 displayName: 'No name',
+                displaySurname: "",
+                displayWhID: "",
+                displayWhModel: "",
+                displayRVoltage: "",
+                displayRCurrent: "",
+                displayManWeight: "",
+                displayWhName: "",
+                lastUploadDate: "",
             })
             //Create new predictedSoC so that the first time subsriber would see the doc
             await firestore().collection('predictedSoC').doc(user.uid).set({

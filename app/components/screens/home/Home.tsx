@@ -33,6 +33,8 @@ const Home: FC = (props) => {
     peripherals,
     whPeripheral,
     receivedBatteryLevel,
+    isUploadingData,
+    lastUploadDate,
     sendDataRPi,
     startScan,
     connectPeripheral,
@@ -77,7 +79,7 @@ const Home: FC = (props) => {
       console.log("Unmount Home");
       //console.log(peripherals)
     };
-  }, [whPeripheral, receivedBatteryLevel, isScanning, timesToSearch]);
+  }, [whPeripheral, receivedBatteryLevel, isScanning, timesToSearch, isUploadingData, lastUploadDate]);
 
   function getColor(value: number) {
     //value from 0 to 1
@@ -206,10 +208,10 @@ const Home: FC = (props) => {
                   onPress={() => navigate("Profile")}
                 />
                 <Separator />
-                <Button title="Upload Data" onPress={handleUploadData} />
+                <Button title={isUploadingData?"Uploading...":"Upload Data"} onPress={handleUploadData} isDisabled={isUploadingData} />
               </View>
 
-              <SmallText text="Last upload: 01/01/2023" />
+              <SmallText text={`Last upload: ${lastUploadDate===''?'No uploads yet':lastUploadDate}`} />
             </View>
           </ScrollView>
         </View>

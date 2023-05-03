@@ -14,6 +14,7 @@ export interface IProfile {
   displayRCurrent: string;
   displayManWeight: string;
   displayWhName: string;
+  lastUploadDate: string;
   docId: string;
 }
 export const useProfile = () => {

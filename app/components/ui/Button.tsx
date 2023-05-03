@@ -6,14 +6,16 @@ interface IButton{
     onPress: () => void
     title: string
     colors?: [string,string]
+    isDisabled?: boolean
 
 }
-const Button:FC<IButton> = ({onPress,title,colors=[YELLOW_BUTTON_COLOR,PRESSED_YELLOW_BUTTON_COLOR]}) => {
+const Button:FC<IButton> = ({onPress,title,colors=[YELLOW_BUTTON_COLOR,PRESSED_YELLOW_BUTTON_COLOR],isDisabled=false}) => {
   return (
     <TouchableHighlight 
     onPress={onPress} 
     underlayColor={colors[1]}
     style={{...textStyles.buttonStyle,backgroundColor: colors[0]}}
+    disabled = {isDisabled}
     >
         <Text style={textStyles.buttonText}>
             {title}

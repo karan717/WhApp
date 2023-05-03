@@ -29,6 +29,8 @@ interface BLEContext {
     receivedData: string
     receivedBatteryLevel: string
     isConnected: boolean
+    isUploadingData: boolean
+    lastUploadDate: string
     startScan: ()=> void
     togglePeripheralConnection: (peripheral: any) => Promise<void>
     connectPeripheral: (peripheral: any) => Promise<void>
@@ -54,6 +56,8 @@ export const BLEProvider: FC<Props> =  ({children})  => {
   const [receivedData, setReceivedData] = useState(''); //Received Data from chargers
   const [receivedBatteryLevel, setReceivedBatteryLevel] = useState(''); //Received Battery Level from Wheelchair
   const [isConnected, setIsConnected] = useState(false);
+  const [isUploadingData, setIsUploadingData] = useState(false); // is Wheelchair Uploading data
+  const [lastUploadDate, setLastUploadDate] = useState('loading...');
   const peripheralsRef = useRef<Map<any,any>>(peripherals); //For Discover Peripherals Listener to access the latest state rather than the first render state
   const _setPeripherals = (newPeripherals:any) =>{
     peripheralsRef.current = newPeripherals;
@@ -148,11 +152,16 @@ export const BLEProvider: FC<Props> =  ({children})  => {
     //differentiate between message from wheelchair and charger
     console.log('received msg',outData)
     if(whPeripheral!==undefined && data.peripheral==whPeripheral.id){
+      if(outData === 'Start Upload'){
+        setIsUploadingData(true); //start Loader, otherwise don't start
+      }
       if(outData === 'Uploaded'){
         Alert.alert('Data is successfully uploaded')
+        setIsUploadingData(false)
       }
       if(outData === 'Not uploaded'){
         Alert.alert('Data is not uploaded! Try later.')
+        setIsUploadingData(false)
       }
       const isNum = !isNaN(parseInt(outData));
       if(isNum){
@@ -191,6 +200,10 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       if(outData === 'Disconnect'){
         Alert.alert('Disconnected from the charger')
         togglePeripheralConnection(peripherals.get(data.peripheral))
+      }
+      //Fully Charged
+      if(outData === 'Fully Charged'){
+        Alert.alert('Unplug your unit, battery is fully charged')
       }
       //check BLE connection
       // if(outData === 'Check BLE'){
@@ -311,9 +324,17 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         // Failure code
         console.log('error during sending?',error);
         setIsConnected(false);
-        //setReceivedData('')
         setReceivedBatteryLevel(''); // if wheelchair turned off suddenly, then do not show the battery level anymore
         markPeripheral({connecting: false, connected: false});
+
+
+        //Delete the Wheelchair peripheral if it can not send the data that means that the connection is lost between
+        //RPi and App and using the same peripheral details can not connect them again if connection is lost
+        if(whPeripheralRef.current !== undefined && whPeripheralRef.current.id===peripheral.id){ //if it is wheelchair, delete it
+          deletePeripheral(peripheral.id) //delete the peripheral, it means this peripheral is off...
+          _setWhPeripheral(undefined)
+        }
+        //It is safe to delete and find again if it is for some reason lost the connection
       });
 
       function markPeripheral(props:any) {
@@ -336,6 +357,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
     BleManager.start({showAlert: false});
 
     try{
+      //Subscribe to user Profile to see changes
       firestore().collection('users').where('_id','==',user?.uid).limit(1).onSnapshot(
       snapshot =>{
           const profile = snapshot.docs.map(d => ({
@@ -365,7 +387,16 @@ export const BLEProvider: FC<Props> =  ({children})  => {
           }
           _setWhID(profile.displayWhID)
           _setRParams(profile.displayRCurrent, profile.displayRVoltage)
+          if(isUploadingData && lastUploadDate!==profile.lastUploadDate){
+            setIsUploadingData(false)
+            Alert.alert('Data is uploaded successfully') //If no connection with BLE
+            //Make in wheelchair the code that updates the lastUploadDate of the user according to _id
+          }
+          setLastUploadDate(profile.lastUploadDate)
+          console.log('Update upload time',profile.lastUploadDate)
           console.log('succesfully updated',profile.displayWhID)
+      }, error => {
+        console.log(error)
       }
       )
     } catch(error){
@@ -451,8 +482,8 @@ export const BLEProvider: FC<Props> =  ({children})  => {
     }
   };
   const value = useMemo(() => ({ isScanning, peripherals,whPeripheral,
-    receivedData,receivedBatteryLevel,isConnected, startScan,togglePeripheralConnection,connectPeripheral,sendDataRPi
-}), [isScanning,peripherals,receivedData,receivedBatteryLevel,isConnected,whPeripheral])
+    receivedData,receivedBatteryLevel,isConnected, isUploadingData, lastUploadDate, startScan,togglePeripheralConnection,connectPeripheral,sendDataRPi
+}), [isScanning,peripherals,receivedData,receivedBatteryLevel,isConnected,whPeripheral,isUploadingData, lastUploadDate])
 
 
 
