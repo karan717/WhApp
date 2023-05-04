@@ -206,14 +206,30 @@ const Route: FC = () => {
 
   //To see changes in the document when it is updated in Firebase
   useEffect(() => {
-    const fetchChargers = async () => {
-      var arr: any = [];
-      await firestore()
-        .collection("chargers")
-        .get()
-        .then((querySnapshot) => {
-          //console.log('Total users: ', querySnapshot.size);
+    // const fetchChargers = async () => {
+    //   var arr: any = [];
+    //   await firestore()
+    //     .collection("chargers")
+    //     .get()
+    //     .then((querySnapshot) => {
+    //       //console.log('Total users: ', querySnapshot.size);
 
+    //       querySnapshot.forEach((documentSnapshot) => {
+    //         //console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
+    //         arr.push({
+    //           data: documentSnapshot.data(),
+    //           key: documentSnapshot.id,
+    //         });
+    //       });
+    //     });
+    //   setChargers(arr);
+    // };
+    
+    //Listener to observe the chargers state in real-time
+    const subscriberCharger = firestore()
+        .collection("chargers").onSnapshot( (querySnapshot) => {
+          //console.log('Total users: ', querySnapshot.size);
+          var arr: any = [];
           querySnapshot.forEach((documentSnapshot) => {
             //console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
             arr.push({
@@ -221,9 +237,11 @@ const Route: FC = () => {
               key: documentSnapshot.id,
             });
           });
+          setChargers(arr);
+          console.log(chargers)
         });
-      setChargers(arr);
-    };
+    
+
     const subscriber = firestore()
       .collection("predictedSoC")
       .doc(profile._id)
@@ -256,15 +274,15 @@ const Route: FC = () => {
     });
     //console.log('Chargers are',chargers)
 
-    //Check if chargers==='', and then do fetching, after subscribe to chargers to update if any changes happen
-    //Should we have different charger sets for different counties? or how?
-    fetchChargers();
-    //chargers.forEach((element:any)=>console.log(element.location))
+    // //Check if chargers==='', and then do fetching, after subscribe to chargers to update if any changes happen
+    // //Should we have different charger sets for different counties? or how?
+    // fetchChargers();
+    // //chargers.forEach((element:any)=>console.log(element.location))
 
-    if (chargers === "") {
-      fetchChargers().catch(console.error);
-      //console.log(chargers)
-    }
+    // if (chargers === "") {
+    //   fetchChargers().catch(console.error);
+    //   //console.log(chargers)
+    // }
     if (markerBRef !== "" && markerBRef !== null) {
       markerBRef.hideCallout();
       markerBRef.showCallout();
@@ -273,7 +291,10 @@ const Route: FC = () => {
     //console.log(profile._id)
 
     // Stop listening for updates when no longer required
-    return () => subscriber();
+    return () => {
+      subscriber();
+      subscriberCharger();
+    };
   }, [markerBRef, distance, profile]);
 
   return (

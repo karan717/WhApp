@@ -205,10 +205,10 @@ export const BLEProvider: FC<Props> =  ({children})  => {
       if(outData === 'Fully Charged'){
         Alert.alert('Unplug your unit, battery is fully charged')
       }
-      //check BLE connection
-      // if(outData === 'Check BLE'){
-      //   sendDataRPi('BLEconn',peripherals.get(data.peripheral))
-      // }
+      //Send back to charger to let know that App is connected through Bluetooth
+      if(outData === 'Check BLE'){
+        sendDataRPi('Connected',peripherals.get(data.peripheral))
+      }
 
     }
   };
