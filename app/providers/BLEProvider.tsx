@@ -275,7 +275,7 @@ export const BLEProvider: FC<Props> =  ({children})  => {
         await BleManager.startNotification(peripheralUUID, service, characteristic).then(()=>{
           //If peripheral is connecting to the charger (Not Wheelchair)
           if(whPeripheral===undefined || peripheral.id!==whPeripheral.id){
-            sendDataRPi(`${WhIDRef.current}:${rCurrentRef.current}:${rVoltageRef.current}:10:@`,peripheral)
+            sendDataRPi(`${user?.uid}:${rCurrentRef.current}:${rVoltageRef.current}:10:@`,peripheral)
           }
           //If peripheral is connecting to Wheelchair, immediately request for Battery Level
           if(whPeripheral!==undefined && peripheral.id===whPeripheral.id){
