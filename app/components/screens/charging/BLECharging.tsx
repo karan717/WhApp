@@ -35,7 +35,7 @@ import { Alert } from "react-native";
 import Button from "../../ui/Button";
 import { useBLE } from "../../../hooks/useBLE";
 import Loader from "../../ui/Loader";
-import { chargingStyles } from "../../../style";
+import { chargingStyles, YELLOW_BUTTON_COLOR } from "../../../style";
 
 const Separator = () => <View style={chargingStyles.separator} />;
 
@@ -52,17 +52,18 @@ const BLECharging = () => {
   } = useBLE();
 
   const renderItem = ({ item }: any) => {
-    const backgroundColor = item.connected ? "#069400" : Colors.white;
+    const backgroundColor = item.connected ? "#069400" : YELLOW_BUTTON_COLOR;//Colors.white;
     return (
       <TouchableHighlight
         underlayColor="#0082FC"
         onPress={() => togglePeripheralConnection(item)}
+        disabled = {item.connecting}
       >
         <View style={[chargingStyles.row, { backgroundColor }]}>
           <Text style={chargingStyles.peripheralName}>
             {item.advertising.localName} {item.connecting && "Connecting..."}
           </Text>
-          <Text style={chargingStyles.peripheralId}>{item.id}</Text>
+          {/* <Text style={chargingStyles.peripheralId}>{item.id}</Text> */}
         </View>
       </TouchableHighlight>
     );
@@ -103,7 +104,7 @@ const BLECharging = () => {
                   borderColor="#000000"
                 />
                 <Text style={chargingStyles.text}>
-                  {Number(receivedBatteryLevel) + "%"}
+                  {Number(receivedBatteryLevel).toFixed(1)+ "%"}
                 </Text>
                 <View className="w-4/5">
                   <Separator />
@@ -118,6 +119,7 @@ const BLECharging = () => {
               <Button
                 title={isScanning ? "Searching..." : "Search for Chargers"}
                 onPress={() => startScan()}
+                isDisabled = {isScanning}
               />
               <Separator />
             </View>

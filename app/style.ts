@@ -226,7 +226,8 @@ export const chargingStyles = EStyleSheet.create({
   peripheralName: {
     fontSize: 20*moderateScale(1),
     textAlign: "center",
-    padding: 5*moderateScale(1),
+    paddingVertical: 20*moderateScale(1),
+    paddingHorizontal: 80*moderateScale(1),
   },
   peripheralId: {
     fontSize: 12*moderateScale(1),
@@ -270,9 +271,10 @@ export const chargingStyles = EStyleSheet.create({
 export const aboutStyles = EStyleSheet.create({
   pageTitle: {
     paddingTop: 10*moderateScale(1),
-    fontSize: 20*moderateScale(1),
+    fontSize: 25*moderateScale(1),
     lineHeight: 25*moderateScale(1),
     textAlign: "center",
+    fontWeight: 'bold',
   },
   cardContainer: {
     justifyContent:"center",
@@ -315,7 +317,21 @@ export const aboutStyles = EStyleSheet.create({
   moreInfoContainer: {
     width:"90%",
     backgroundColor: "white",
-    padding:10*moderateScale(1),
+    //padding:10*moderateScale(1),
+  },
+  moreCardText:{
+    paddingTop:10*moderateScale(1),
+    paddingBottom:10*moderateScale(1),
+    //padding: 10*moderateScale(1),
+    fontSize: 20*moderateScale(1),
+    lineHeight: 25*moderateScale(1),
+    textAlign: "justify",  
+  },
+  introText:{
+    padding: 20*moderateScale(1),
+    fontSize: 20*moderateScale(1),
+    lineHeight: 25*moderateScale(1),
+    textAlign: "justify",  
   }
 });
 

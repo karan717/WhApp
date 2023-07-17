@@ -54,7 +54,7 @@ interface Marker {
   latitude: number;
   longitude: number;
 }
-
+const GOOGLE_API = "AIzaSyAGSxQvS4q3nFE6TLAVvPRLZWuZOeCBA44";
 //Important link on Firestore usage for React Native
 //https://rnfirebase.io/firestore/usage
 
@@ -89,6 +89,12 @@ const Route: FC = () => {
     setDuration,
     setFinalSoC,
   } = useRouteInfo();
+  const finalSoCRef = useRef<any>(finalSoC);
+  const _setFinalSoC = (newFinalSoC:any) =>{
+    finalSoCRef.current = newFinalSoC;
+    setFinalSoC(newFinalSoC);
+    console.log('Final soc set to',newFinalSoC)
+  }
   const { isLoading, isSuccess, uploadPath } = useUploadPath();
   const { receivedBatteryLevel } = useBLE();
 
@@ -125,22 +131,23 @@ const Route: FC = () => {
         console.log("Details exists: ", documentSnapshot.exists);
 
         if (documentSnapshot.exists) {
-          console.log("Charger details: ", documentSnapshot.data());
+          //console.log(chargers.find((x:any) => x.data._id === chargerID).data.state)
           setDetailState("Charger");
-          setChargerDetails(documentSnapshot.data());
+          setChargerDetails(documentSnapshot.data())
+          //setChargerDetails({...documentSnapshot.data(),"state":chargers.find((x:any) => x.data._id === chargerID).data.state});
         }
       });
   };
   const getPlaceDetails = async (placeID: string) => {
     var config = {
       method: "get",
-      url: `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeID}&fields=name%2Cformatted_address%2Copening_hours%2Cformatted_phone_number&key=AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64`,
+      url: `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeID}&fields=name%2Cformatted_address%2Copening_hours%2Cformatted_phone_number&key=${GOOGLE_API}`,
       headers: {},
     };
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
+        //console.log(JSON.stringify(response.data));
         setDetailState("Place");
         setPlaceDetails(response.data.result);
       })
@@ -154,14 +161,14 @@ const Route: FC = () => {
     //Elevation API works this way, max points is 512
     console.log("Coordinates length:");
     //console.log(args)
-    console.log(Object.keys(args.coordinates).length);
+    //console.log(Object.keys(args.coordinates).length);
 
     let pathString = Array.prototype.map
       .call(args.coordinates, (s) => s.latitude + "%2C" + s.longitude)
       .join("%7C");
     var config = {
       method: "get",
-      url: `https://maps.googleapis.com/maps/api/elevation/json?locations=${pathString}&key=AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64`,
+      url: `https://maps.googleapis.com/maps/api/elevation/json?locations=${pathString}&key=${GOOGLE_API}`,
       headers: {},
     };
 
@@ -238,7 +245,7 @@ const Route: FC = () => {
             });
           });
           setChargers(arr);
-          console.log(chargers)
+          //console.log(chargers)
         });
     
 
@@ -256,7 +263,8 @@ const Route: FC = () => {
         //Check if path.length === documentSnapshot.data()?.points.length, so that we know that the data is updated
         documentSnapshot.data()?.points!==undefined && documentSnapshot.data()?.points[
           documentSnapshot.data()?.points.length - 1
-        ].SoC !== undefined &&
+        ].SoC !== undefined && path[path.length-1] !== undefined && documentSnapshot.data()?.points[
+          documentSnapshot.data()?.points.length - 1].location.lat == path[path.length-1]?.latitude && showPolyline &&
           setFinalSoC(
             Number(
               documentSnapshot
@@ -266,6 +274,17 @@ const Route: FC = () => {
                 ].SoC.toFixed(1)
             )
           );
+          console.log('is final SoC set?',Number(
+            documentSnapshot
+              .data()
+              ?.points[
+                documentSnapshot.data()?.points.length - 1
+              ].SoC.toFixed(1)
+          ),documentSnapshot.data()?.points!==undefined && documentSnapshot.data()?.points[
+            documentSnapshot.data()?.points.length - 1
+          ].SoC !== undefined && path[path.length-1] !== undefined && documentSnapshot.data()?.points[
+            documentSnapshot.data()?.points.length - 1].location.lat == path[path.length-1].latitude);
+            
       });
 
     setCurrentLocation({
@@ -288,8 +307,9 @@ const Route: FC = () => {
       markerBRef.showCallout();
     }
     console.log("call effect Route");
+    //console.log('State',pageState,'ShowPoly',showPolyline,'pathEmpty',path=='','markerB',markerB)
     //console.log(profile._id)
-
+    //console.log('Path length',path.length)
     // Stop listening for updates when no longer required
     return () => {
       subscriber();
@@ -356,9 +376,13 @@ const Route: FC = () => {
             }
           }
           setShowPolyline(false);
+          setFinalSoC('Loading...');
           console.log("OnPress");
+          setMarkerA(currentLocation);
         }}
         onPoiClick={(e) => {
+          setShowPolyline(false);
+          setFinalSoC('Loading...');
           setMarkerB({
             latitude: e.nativeEvent.coordinate.latitude,
             longitude: e.nativeEvent.coordinate.longitude,
@@ -369,16 +393,18 @@ const Route: FC = () => {
           setPageState("infoState");
           handleOpenLong();
           getPlaceDetails(e.nativeEvent.placeId);
+          setMarkerA(currentLocation);
+          
         }}
       >
         {markerB !== "" && pageState === "routeState" && (
           <MapViewDirections
             origin={markerA}
             destination={markerB}
-            apikey={"AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64"} // insert your API Key here
+            apikey={GOOGLE_API} // insert your API Key here
             strokeWidth={0.1}
             strokeColor="#F0F0F0"
-            mode="WALKING"
+            mode="BICYCLING"
             precision="low" //high, precision of the drawn polyline
             onReady={(args) => {
               getElevation(args);
@@ -509,7 +535,7 @@ const Route: FC = () => {
                 latitude: details.geometry.location.lat,
                 longitude: details.geometry.location.lng,
               });
-              console.log(details);
+              //console.log(details);
               setDetailState("Place");
               setPlaceDetails(details);
             }
@@ -519,7 +545,7 @@ const Route: FC = () => {
             handleOpenLong();
           }}
           query={{
-            key: "AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64",
+            key: GOOGLE_API,
             language: "en",
             components: "country:us",
           }}
@@ -603,14 +629,14 @@ const Route: FC = () => {
                         </Text>
                       </View>
                     )}
-
+                    {chargers.find((x:any) => x.data._id === "Charger#"+chargerDetails.chargerID) !== undefined &&
                     <View className="flex-row">
                       <Text style={routeStyles.statusText}>{"Charger: "}</Text>
 
                       <FontAwesome5
                         name={"charging-station"}
                         color={
-                          chargerDetails.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR
+                          chargers.find((x:any) => x.data._id === "Charger#"+chargerDetails.chargerID).data.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR
                         }
                         //style={{ position: 'absolute' }}
                         //style={{ borderWidth: 1, borderColor: '#000000' }}
@@ -620,19 +646,19 @@ const Route: FC = () => {
                       <Text
                         style={{
                           color: `${
-                            chargerDetails.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR
+                            chargers.find((x:any) => x.data._id === "Charger#"+chargerDetails.chargerID).data.state === "1" ? AVAILABLE_CHARGER_COLOR : BUSY_CHARGER_COLOR
                           }`,
                           fontWeight: "bold",
                           ...routeStyles.statusText,
                         }}
                         //textShadowColor:'#000000', textShadowOffset:{width: 0.5, height: 0.5},textShadowRadius:1,
                       >
-                        {chargerDetails.state !== undefined &&
-                        chargerDetails.state === "1"
-                          ? " Available"
-                          : " Currently in use"}
+                        {
+                        chargers.find((x:any) => x.data._id === "Charger#"+chargerDetails.chargerID).data.state == "1" ? " Available" : " Currently in use"
+                        }
                       </Text>
                     </View>
+                    }
                   </>
                 )}
 
@@ -750,16 +776,16 @@ const Route: FC = () => {
                   input={["Travel distance*:", `${distance} mi.`]}
                 />
                 <DirectionsItems
-                  input={["Travel time*:", `${duration} min.`]}
+                  input={["Travel time*:", `${Number(duration*(9.27/5)).toFixed(1)} min.`]}
                 />
                 <DirectionsItems
                   input={[
                     "Battery level at start:",
-                    `${receivedBatteryLevel} %`,
+                    `${Number.isNaN(Number(receivedBatteryLevel))? 80: Number(receivedBatteryLevel).toFixed(1)} %`,
                   ]}
                 />
                 <DirectionsItems
-                  input={["Battery level at destination*:", `${finalSoC} %`]}
+                  input={["Battery level at destination*:", `${ Number.isNaN(Number(finalSoC))? "Loading...":`${finalSoC}%`}` ]}
                 />
                 <Text style={{ paddingLeft: 30, marginTop: 10 }}>
                   *Estimated values.

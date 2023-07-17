@@ -39,40 +39,30 @@ const Home: FC = (props) => {
     startScan,
     connectPeripheral,
   } = useBLE();
-  const [timesToSearch, setTimesToSearch] = useState(5);
+  const [timesToSearch, setTimesToSearch] = useState(1);
   //change useEffect of the Home
   useEffect(() => {
     const interval = setInterval(
       async () => {
-        console.log("Home UseEffect");
-        let runScan = whPeripheral !== undefined; //runScan check if whPeripheral found
-        console.log(!runScan); //false
-        console.log(
-          whPeripheral === undefined || Number(receivedBatteryLevel) === 0
-        ); //true...
-        if (!runScan) {
+        //console.log('is whPeripheral undefined?', whPeripheral === undefined )
+        if (whPeripheral === undefined && timesToSearch>0){
           await startScan();
-          if (whPeripheral !== undefined) {
-            console.log("Home found");
+          setTimesToSearch(timesToSearch - 1);
+          if(whPeripheral !== undefined){
+            await connectPeripheral(whPeripheral); //
           }
-        } else {
+        }else if(whPeripheral !== undefined ){
+          setTimesToSearch(0); //if it is already found, don't need automatic search again
           let whInstance = peripherals.get(whPeripheral.id);
-          if (whInstance.connected) {
-            sendDataRPi("Battery Level", whPeripheral);
-          } else {
-            await connectPeripheral(whPeripheral);
-            //sendDataRPi('Battery Level',whPeripheral);
-          }
+          //If wheelchair is not connected, then it will be deleted by sendDataRPi function call
+          sendDataRPi("Battery Level", whPeripheral);
+            
         }
         console.log(timesToSearch);
-        if (timesToSearch > 0) {
-          setTimesToSearch(timesToSearch - 1);
-        }
       },
-      timesToSearch > 1 &&
-        (whPeripheral === undefined || Number(receivedBatteryLevel) === 0)
-        ? 2000
-        : 10000
+      timesToSearch > 0 &&
+        (whPeripheral === undefined)
+        ? 1000 : 10000
     );
     return () => {
       clearInterval(interval);
@@ -123,6 +113,11 @@ const Home: FC = (props) => {
     //this function doesnt start scanning
     if (whPeripheral === undefined) {
       await startScan();
+      //It can never work, because startScan is asynchronous function,
+      //it should be handled inside the handle Discover function
+      if(whPeripheral !== undefined){
+        await connectPeripheral(whPeripheral); //
+      }
     } else {
       let whInstance = peripherals.get(whPeripheral.id);
       if (whInstance.connected) {
@@ -142,33 +137,28 @@ const Home: FC = (props) => {
         <View style={homeStyles.outerContainer}>
           <ScrollView contentContainerStyle={homeStyles.scrollViewContainer}>
             <View style={homeStyles.innerViewContainer}>
+
               {
-                //Text at the very beginning when trying to connect to battery (5 times)
-                timesToSearch > 1 && Number(receivedBatteryLevel) === 0 && (
+                //Text when the wheelchair is not found or searching for it
+                isNaN(parseInt(receivedBatteryLevel)) && (
                   <>
+                    
+                    {isScanning ? <>
                     <Loader />
-
                     <SmallText text="Connecting to Wheelchair..." />
-
+                    </> : <SmallText text="Wheelchair not found" />}
                     <View style={homeStyles.buttonViewContainer}>
+                      
                       <Separator />
-                    </View>
-                  </>
-                )
-              }
-
-              {
-                //Text when the battery is not found after 5 times
-                timesToSearch <= 1 && Number(receivedBatteryLevel) === 0 && (
-                  <>
-                    <SmallText text="Wheelchair not found" />
-                    <View style={homeStyles.buttonViewContainer}>
-                      {isScanning && <Loader />}
                       <Button
                         title={
                           isScanning ? "Searching..." : "Connect to Wheelchair"
                         }
-                        onPress={handleFindWheelchair}
+                        onPress={()=>{
+                          handleFindWheelchair();
+                          setTimesToSearch(0); //if pressed, no need for automatic search
+                        }}
+                        isDisabled={isScanning}
                       />
                       <Separator />
                     </View>
@@ -178,7 +168,7 @@ const Home: FC = (props) => {
 
               {
                 //Battery Level when the wheelchair is found
-                Number(receivedBatteryLevel) > 0 && (
+                !isNaN(parseInt(receivedBatteryLevel)) && (
                   <>
                     <Text style={homeStyles.textBattery}>WC Battery Level</Text>
 
@@ -192,7 +182,7 @@ const Home: FC = (props) => {
                     />
 
                     <Text style={homeStyles.textBattery}>
-                      {Number(receivedBatteryLevel) + "%"}
+                      {Number(receivedBatteryLevel).toFixed(1) + "%"}
                     </Text>
 
                     <View style={homeStyles.buttonViewContainer}>
@@ -221,18 +211,3 @@ const Home: FC = (props) => {
 };
 
 export default Home;
-
-/*
-
-<Layout isScrollView={false}>
-      <Header/>
-      <View style={homeStyles.container}>
-        <ScrollView contentContainerStyle={homeStyles.scrollViewContainer}>
-          <View style={homeStyles.innerViewContainer}>
-            <Text>Hello World</Text>
-          </View>
-        </ScrollView>
-      </View>
-    </Layout>
-    
-*/

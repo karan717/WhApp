@@ -108,7 +108,7 @@ const Profile: FC = () => {
                 placeholder="Last Name"
               />
 
-              <FieldTitle name="Wheelchair ID *" />
+              <FieldTitle name="Wheelchair ID" />
               <Field
                 onChange={setWhID}
                 val={WhID}

@@ -8,7 +8,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [GMSServices provideAPIKey:@"AIzaSyAbua8JdM1P1R-TurgVAbzviUvyUQXEO64"]; // add this line using the api key obtained from Google Console
+  [GMSServices provideAPIKey:@"AIzaSyAGSxQvS4q3nFE6TLAVvPRLZWuZOeCBA44"]; // add this line using the api key obtained from Google Console
   if ([FIRApp defaultApp] == nil){
     [FIRApp configure];
   }
